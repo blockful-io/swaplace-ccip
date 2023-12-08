@@ -4,6 +4,8 @@
     "hardhat": "^2.12.7"
   },
   "devDependencies": {
+    "@chainlink/contracts": "^0.8.0",
+    "@chainlink/contracts-ccip": "^0.7.3",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
