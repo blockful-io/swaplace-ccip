@@ -58,7 +58,7 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
     uint64 _destinationChainSelector,
     address _receiver,
     bytes32 _proof
-  ) internal {
+  ) internal returns (bytes32) {
     if (!_allowlistedDestinationChains[_destinationChainSelector]) {
       revert DestinationChainNotAllowlisted(_destinationChainSelector);
     }
@@ -93,13 +93,15 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
       address(_linkToken),
       fees
     );
+
+    return messageId;
   }
 
   function _sendMessagePayNative(
     uint64 _destinationChainSelector,
     address _receiver,
     bytes32 _proof
-  ) internal returns (uint256 fees) {
+  ) internal returns (bytes32) {
     if (!_allowlistedDestinationChains[_destinationChainSelector]) {
       revert DestinationChainNotAllowlisted(_destinationChainSelector);
     }
@@ -112,7 +114,7 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
 
     IRouterClient router = IRouterClient(this.getRouter());
 
-    fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
+    uint256 fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
 
     if (fees > msg.value) {
       revert NotEnoughBalance(msg.value, fees);
@@ -135,6 +137,8 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
       address(0),
       fees
     );
+
+    return messageId;
   }
 
   function _buildCCIPMessage(

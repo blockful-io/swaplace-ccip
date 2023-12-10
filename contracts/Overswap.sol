@@ -6,52 +6,70 @@ import {IOverswap} from "./interfaces/IOverswap.sol";
 import {ITransfer} from "./interfaces/ITransfer.sol";
 
 contract Overswap is CCIP, IOverswap {
-  uint256 private _totalSwaps;
-
-  mapping(uint256 => Swap) private _swaps;
+  mapping(bytes32 => Swap) private _swaps;
 
   constructor(address _router, address _link) CCIP(_router, _link) {}
 
-  function createSwap(Swap calldata swap) external payable returns (uint256) {
-    if (swap.owner != msg.sender) {
-      revert InvalidAddress(msg.sender);
-    }
-
+  function createSwap(Swap calldata swap) external payable returns (bytes32) {
     (, uint64 destinationChainSelector, uint32 expiration) = _parseData(
       swap.config
     );
 
+    if (swap.owner != msg.sender) {
+      revert InvalidAddress(msg.sender);
+    }
+
     if (expiration < block.timestamp) {
-      revert InvalidExpiry(expiration);
+      revert InvalidExpiration(expiration);
     }
 
     if (swap.biding.length == 0 || swap.asking.length == 0) {
       revert InvalidAssetsLength();
     }
 
-    unchecked {
-      assembly {
-        sstore(_totalSwaps.slot, add(sload(_totalSwaps.slot), 1))
-      }
-    }
-
-    uint256 swapId = _totalSwaps;
-    bytes32 proof = keccak256(abi.encode(swapId, swap));
+    bytes32 messageId;
+    bytes32 proof = keccak256(abi.encode(swap));
 
     if (msg.value > 0) {
-      _sendMessagePayNative(destinationChainSelector, msg.sender, proof);
+      messageId = _sendMessagePayNative(
+        destinationChainSelector,
+        msg.sender,
+        proof
+      );
     } else {
-      _sendMessagePayLINK(destinationChainSelector, msg.sender, proof);
+      messageId = _sendMessagePayLINK(
+        destinationChainSelector,
+        msg.sender,
+        proof
+      );
     }
 
     _transferFrom(msg.sender, address(this), swap.biding);
     _increaseUnlockSteps(proof);
 
-    _swaps[swapId] = swap;
+    _swaps[messageId] = swap;
 
-    emit SwapCreated(swapId, msg.sender, expiration);
+    emit SwapCreated(messageId, msg.sender, expiration);
 
-    return swapId;
+    return messageId;
+  }
+
+  function acceptSwap(Swap calldata swap) public {
+    (
+      address allowed,
+      uint64 destinationChainSelector,
+      uint32 expiration
+    ) = _parseData(swap.config);
+
+    if (allowed != address(0) && allowed != msg.sender) {
+      revert InvalidAddress(msg.sender);
+    }
+
+    if (expiration < block.timestamp) {
+      revert InvalidExpiration(expiration);
+    }
+
+    bytes32 proof = keccak256(abi.encode(swap));
   }
 
   function _packData(
@@ -90,11 +108,11 @@ contract Overswap is CCIP, IOverswap {
 
   function simulateFees(Swap calldata swap) public view returns (uint256 fees) {
     (, uint64 destinationChainSelector, ) = _parseData(swap.config);
-    bytes32 proof = keccak256(abi.encode(_totalSwaps + 1, swap));
+    bytes32 proof = keccak256(abi.encode(swap));
     fees = _simulateFees(destinationChainSelector, swap.owner, proof);
   }
 
-  function totalSwaps() public view returns (uint256) {
-    return _totalSwaps;
+  function getSwaps(bytes32 messageId) public view returns (Swap memory) {
+    return _swaps[messageId];
   }
 }

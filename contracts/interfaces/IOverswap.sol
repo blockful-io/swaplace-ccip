@@ -53,14 +53,14 @@ interface IOverswap {
   /**
    * @dev Displayed when the `expiry` date is in the past.
    */
-  error InvalidExpiry(uint256 timestamp);
+  error InvalidExpiration(uint256 timestamp);
 
   /**
    * @dev Emitted when a new Swap is created.
    */
   event SwapCreated(
-    uint256 indexed id,
+    bytes32 indexed messageId,
     address indexed owner,
-    uint256 indexed expiry
+    uint256 indexed expiration
   );
 }
