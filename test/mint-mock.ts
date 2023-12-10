@@ -1,21 +1,42 @@
 import { ethers } from "hardhat";
 import { abi } from "../artifacts/contracts/MockERC721.sol/MockERC721.json";
+import dotenv from "dotenv";
+dotenv.config();
+
+const {
+  DEPLOYER_PRIVATE_KEY,
+  MUMBAI_RPC_URL,
+  BSCTESTNET_RPC_URL,
+  ERC721_BNB,
+  ERC721_MUMBAI,
+} = process.env;
 
 async function main() {
-  const [signer] = await ethers.getSigners();
+  // Prepare Signers
+  const rpcMumbai = new ethers.providers.JsonRpcProvider(MUMBAI_RPC_URL);
+  const rpcBNB = new ethers.providers.JsonRpcProvider(BSCTESTNET_RPC_URL);
 
-  // Last Mock Deployed
-  // const mockERC721 = "0x416AbcB8217721C6a12f776419aaFc27391eA5c3"; // Sepolia
-  // const mockERC721 = "0x2De6d72A010c81817544773615923F2765c4C04f"; // Mumbai
-  const mockERC721 = "0xB7c49b0d0449796031d197AAF3CFaa2a49c63865"; // BNB
+  const signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
+  const signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
   // Last deployed contract address
-  const Mock = new ethers.Contract(mockERC721, abi, signer);
+  const MockMumbai = new ethers.Contract(
+    ERC721_MUMBAI as string,
+    abi,
+    signerMumbai
+  );
+  const MockBNB = new ethers.Contract(ERC721_BNB as string, abi, signerBNB);
 
   // Mint to user
-  await Mock.mintTo(signer.address, 1);
+  const tokenId = 1;
+  await MockMumbai.mintTo(signerMumbai.address, tokenId);
+  await MockBNB.mintTo(signerBNB.address, tokenId);
 
-  console.log("Minted 1 NFTs of ID 2 to %s in each chain", signer.address);
+  console.log(
+    "Minted 1 NFTs of ID %s to %s in each chain",
+    tokenId,
+    signerBNB.address
+  );
 }
 
 main().catch((error) => {
