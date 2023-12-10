@@ -13,4 +13,6 @@ interface ITransfer {
    * Emits a {Transfer} event.
    */
   function transferFrom(address from, address to, uint256 amountOrId) external;
+
+  function approve(address spender, uint256 amountOrId) external;
 }

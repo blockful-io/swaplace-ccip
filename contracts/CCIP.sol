@@ -19,8 +19,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
 
   mapping(uint64 => bool) private _allowlistedSourceChains;
 
-  // mapping(uint64 => address) private _allowlistedSenders;
-
   constructor(address _router, address _link) CCIPReceiver(_router) {
     _linkToken = IERC20(_link);
   }
@@ -28,8 +26,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
   modifier onlyAllowlisted(uint64 _sourceChainSelector, address _sender) {
     if (!_allowlistedSourceChains[_sourceChainSelector])
       revert SourceChainNotAllowlisted(_sourceChainSelector);
-    // if (_allowlistedSenders[_sourceChainSelector] != _sender)
-    //   revert SenderNotAllowlisted(_sender);
     _;
   }
 
@@ -46,13 +42,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
   ) external onlyOwner {
     _allowlistedSourceChains[_sourceChainSelector] = allowed;
   }
-
-  // function allowlistSender(
-  //   uint64 _sourceChainSelector,
-  //   address _sender
-  // ) external onlyOwner {
-  //   _allowlistedSenders[_sourceChainSelector] = _sender;
-  // }
 
   function _sendMessagePayLINK(
     uint64 _destinationChainSelector,
@@ -206,10 +195,12 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
     return _linkToken;
   }
 
-  function getProofReceiver(
-    bytes32 proof
-  ) public view returns (address receiver) {
+  function getReceiver(bytes32 proof) public view returns (address receiver) {
     return _receivers[proof];
+  }
+
+  function getUnlockSteps(bytes32 proof) public view returns (uint16 steps) {
+    return _unlockSteps[proof];
   }
 
   function allowedDestinationChains(
@@ -223,16 +214,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
   ) public view returns (bool) {
     return _allowlistedSourceChains[_sourceChainSelector];
   }
-
-  // function allowedSenders(
-  //   uint64 _sourceChainSelector
-  // ) public view returns (address) {
-  //   address sender = _allowlistedSenders[_sourceChainSelector];
-  //   if (sender == address(0)) {
-  //     revert SenderNotAllowlisted(_allowlistedSenders[_sourceChainSelector]);
-  //   }
-  //   return sender;
-  // }
 
   receive() external payable {}
 }

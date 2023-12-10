@@ -54,7 +54,7 @@ contract Overswap is CCIP, IOverswap {
     return messageId;
   }
 
-  function acceptSwap(Swap calldata swap) public {
+  function acceptSwap(Swap calldata swap) public payable {
     (
       address allowed,
       uint64 destinationChainSelector,
@@ -70,6 +70,45 @@ contract Overswap is CCIP, IOverswap {
     }
 
     bytes32 proof = keccak256(abi.encode(swap));
+
+    if (msg.value > 0) {
+      _sendMessagePayNative(destinationChainSelector, msg.sender, proof);
+    } else {
+      _sendMessagePayLINK(destinationChainSelector, msg.sender, proof);
+    }
+
+    _increaseUnlockSteps(proof);
+    _transferFrom(msg.sender, address(this), swap.asking);
+
+    _swaps[proof] = swap;
+  }
+
+  function withdraw(bytes32 proof) public {
+    address receiver = getReceiver(proof);
+    Swap memory swap = getSwaps(proof);
+
+    if (getUnlockSteps(proof) < 2) {
+      revert NothingToWithdraw();
+    }
+
+    if (receiver != msg.sender) {
+      revert InvalidAddress(msg.sender);
+    }
+
+    for (uint256 i = 0; i < swap.asking.length; ) {
+      ITransfer(swap.asking[i].addr).approve(
+        address(this),
+        swap.asking[i].amountOrId
+      ); // try to remove to see if it works
+      ITransfer(swap.asking[i].addr).transferFrom(
+        address(this),
+        receiver,
+        swap.asking[i].amountOrId
+      );
+      unchecked {
+        i++;
+      }
+    }
   }
 
   function _packData(
@@ -112,7 +151,7 @@ contract Overswap is CCIP, IOverswap {
     fees = _simulateFees(destinationChainSelector, swap.owner, proof);
   }
 
-  function getSwaps(bytes32 messageId) public view returns (Swap memory) {
-    return _swaps[messageId];
+  function getSwaps(bytes32 proof) public view returns (Swap memory) {
+    return _swaps[proof];
   }
 }
