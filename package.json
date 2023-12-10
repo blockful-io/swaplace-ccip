@@ -29,7 +29,13 @@
   "scripts": {
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test",
-    "deploy": "npx hardhat run scripts/deploy.ts --network $1"
+    "deploy": "npx hardhat run scripts/deploy.ts",
+    "deployMock": "npx hardhat run scripts/deployMock.ts",
+    "mint": "npx hardhat run scripts/mockMint.ts",
+    "allowChain": "npx hardhat run scripts/allowlistDestinationChain.ts",
+    "allowlist": "npx hardhat run scripts/allowlistSender.ts",
+    "approve": "npx hardhat run scripts/approve.ts",
+    "send": "npx hardhat run scripts/sendMessagePayLINK.ts",
+    "test": "npx hardhat run test/main.ts"
   }
 }
