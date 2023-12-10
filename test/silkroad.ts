@@ -5,15 +5,28 @@ import { blocktimestamp } from "../scripts/utils";
 async function main() {
   const [signer] = await ethers.getSigners();
 
+  /////////////////////////////
+  // Getting the Swap Struct from another chain
+  const s_contract = await ethers.getContractAt(
+    "Overswap",
+    "0x1Aa55AE747D7AFd62D1b447692C1578E2f10A0aF",
+    signer
+  );
+  const s_swap = await s_contract.getSwaps(
+    "0x22bb4ecc59f9d039d365648ea77e4443cbced24b0f3cd70e57e8beae2582c591"
+  );
+  console.log("Swap %s", s_swap);
+  /////////////////////////////
+
   // $LINK Address
   // const link = "0x779877A7B0D9E8603169DdbD7836e478b4624789"; // Sepolia
-  const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
-  // const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // BNB
+  // const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
+  const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // BNB
 
   // Destination Chain
   // const destinationChain = "16015286601757825753"; // Sepolia
-  // const destinationChain = "12532609583862916517"; // Mumbai
-  const destinationChain = "13264668187771770619"; // BNB
+  const destinationChain = "12532609583862916517"; // Mumbai
+  // const destinationChain = "13264668187771770619"; // BNB
 
   // Last Mock Deployed
   const mockERC721_sepolia = "0x416AbcB8217721C6a12f776419aaFc27391eA5c3"; // Sepolia
@@ -22,41 +35,52 @@ async function main() {
 
   // Official Deployed
   // const Overswap = "0x5983E90123ccC820b96FAa34153530eF6621a17C"; // Sepolia
-  const Overswap = "0xb7A42919ae66745Ffa69940De9d3DD99703eACb1"; // Mumbai
-  // const Overswap = "0x93E1247408F392c93b26939b15dcB7CdfdA92B4c"; // BNB
+  // const Overswap = "0x1Aa55AE747D7AFd62D1b447692C1578E2f10A0aF"; // Mumbai
+  const Overswap = "0xEb5937936A252bF76294DeBbf4710400a080B01B"; // BNB
 
   // Last deployed contract address
   const Contract = await ethers.getContractAt("Overswap", Overswap, signer);
+
+  await Contract.connect(signer).allowlistSender(
+    destinationChain,
+    "0x1Aa55AE747D7AFd62D1b447692C1578E2f10A0aF"
+  );
+  console.log("Cross-chain Contract listed");
+
   const MockERC721 = await ethers.getContractAt(
     "MockERC721",
-    mockERC721_mumbai,
+    mockERC721_bnb,
     signer
   );
-  const tokenId = 101;
-  await MockERC721.mintTo(signer.address, tokenId);
+  // const tokenId = 200;
+  // await MockERC721.mintTo(signer.address, tokenId);
 
   // Create a swap
-  const bidingAddr = [mockERC721_mumbai];
-  const bidingAmountOrId = [tokenId];
+  // const bidingAddr = [mockERC721_mumbai];
+  // const bidingAmountOrId = [tokenId];
 
-  const askingAddr = [mockERC721_bnb];
-  const askingAmountOrId = [1];
+  // const askingAddr = [mockERC721_bnb];
+  // const askingAmountOrId = [1];
 
-  const swap: Swap = await composeSwap(
-    Contract,
-    signer.address,
-    ethers.constants.AddressZero,
-    destinationChain,
-    (await blocktimestamp()) * 2,
-    bidingAddr,
-    bidingAmountOrId,
-    askingAddr,
-    askingAmountOrId
-  );
+  // const swap: Swap = await composeSwap(
+  //   Contract,
+  //   signer.address,
+  //   ethers.constants.AddressZero,
+  //   destinationChain,
+  //   (await blocktimestamp()) * 2,
+  //   bidingAddr,
+  //   bidingAmountOrId,
+  //   askingAddr,
+  //   askingAmountOrId
+  // );
 
   // Simulate fees
-  const simulateFee = await Contract.connect(signer).simulateFees(swap);
-  const fee = simulateFee[0].toString();
+  // const simulateFee = await Contract.connect(signer).simulateFees(swap);
+  const simulateFee = await Contract.connect(signer).simulateFees(s_swap);
+  const fee = simulateFee[0];
+  console.log("Fee %s", ethers.utils.formatEther(fee));
+  const proof = simulateFee[1];
+  console.log("Proof %s", proof);
 
   // // Approve usage of link and NFTs
   const Link = new ethers.Contract(
@@ -67,11 +91,24 @@ async function main() {
     signer
   );
   await Link.connect(signer).approve(Contract.address, fee);
-  await MockERC721.connect(signer).approve(Contract.address, tokenId);
-  console.log("Approved %s LINK to contract %s", fee, Contract.address);
+  // await MockERC721.connect(signer).approve(Contract.address, tokenId);
+  await MockERC721.connect(signer).approve(Contract.address, 1);
+  console.log(
+    "Approved %s LINK and Token Id %s to contract %s",
+    fee,
+    MockERC721.address,
+    Contract.address
+  );
 
   // Create a Swap
-  const tx = await Contract.connect(signer).createSwap(swap, {
+  // const tx = await Contract.connect(signer).createSwap(swap, {
+  //   gasLimit: 3000000,
+  //   maxPriorityFeePerGas: 20001002003,
+  //   maxFeePerGas: 20001002003,
+  // });
+
+  // Accept a Swap
+  const tx = await Contract.connect(signer).acceptSwap(s_swap, {
     gasLimit: 3000000,
     maxPriorityFeePerGas: 20001002003,
     maxFeePerGas: 20001002003,

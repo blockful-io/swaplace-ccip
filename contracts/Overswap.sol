@@ -6,7 +6,9 @@ import {IOverswap} from "./interfaces/IOverswap.sol";
 import {ITransfer} from "./interfaces/ITransfer.sol";
 
 contract Overswap is CCIP, IOverswap {
-  mapping(bytes32 => Swap) private _swaps;
+  uint256 private _totalSwaps;
+
+  mapping(uint256 => Swap) private _swaps;
 
   constructor(address _router, address _link) CCIP(_router, _link) {}
 
@@ -27,32 +29,36 @@ contract Overswap is CCIP, IOverswap {
       revert InvalidAssetsLength();
     }
 
-    bytes32 messageId;
     bytes32 proof = keccak256(abi.encode(swap));
 
     if (msg.value > 0) {
-      messageId = _sendMessagePayNative(
+      _sendMessagePayNative(
         destinationChainSelector,
-        msg.sender,
+        allowlistSenders(destinationChainSelector),
         msg.value,
         proof
       );
     } else {
-      messageId = _sendMessagePayLINK(
+      _sendMessagePayLINK(
         destinationChainSelector,
-        msg.sender,
+        allowlistSenders(destinationChainSelector),
         proof
       );
     }
 
+    unchecked {
+      assembly {
+        sstore(_totalSwaps.slot, add(sload(_totalSwaps.slot), 1))
+      }
+    }
     _transferFrom(msg.sender, address(this), swap.biding);
     _increaseUnlockSteps(proof);
 
-    _swaps[messageId] = swap;
+    _swaps[_totalSwaps] = swap;
 
-    emit SwapCreated(messageId, msg.sender, expiration);
+    emit SwapCreated(proof, msg.sender, expiration);
 
-    return messageId;
+    return proof;
   }
 
   function acceptSwap(Swap calldata swap) public payable {
@@ -85,8 +91,6 @@ contract Overswap is CCIP, IOverswap {
 
     _increaseUnlockSteps(proof);
     _transferFrom(msg.sender, address(this), swap.asking);
-
-    _swaps[proof] = swap;
   }
 
   function withdraw(bytes32 proof) public {
@@ -163,7 +167,7 @@ contract Overswap is CCIP, IOverswap {
     return _swaps[proof];
   }
 
-  function redeem() public payable {
+  function redeem() public payable onlyOwner {
     payable(address(msg.sender)).transfer(address(this).balance);
   }
 }

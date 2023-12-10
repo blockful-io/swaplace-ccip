@@ -9,6 +9,8 @@ import {IERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-sol
 import {ICCIP} from "./interfaces/ICCIP.sol";
 
 abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
+  bytes32 public lastReceivedMessageId;
+
   mapping(bytes32 => address) private _receivers;
 
   mapping(bytes32 => uint16) private _unlockSteps;
@@ -19,28 +21,39 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
 
   mapping(uint64 => bool) private _allowlistedSourceChains;
 
+  mapping(uint64 => address) private _allowlistedSenders;
+
   constructor(address _router, address _link) CCIPReceiver(_router) {
     _linkToken = IERC20(_link);
   }
 
-  modifier onlyAllowlisted(uint64 _sourceChainSelector) {
+  modifier onlyAllowlisted(uint64 _sourceChainSelector, address _sender) {
     if (!_allowlistedSourceChains[_sourceChainSelector])
       revert SourceChainNotAllowlisted(_sourceChainSelector);
+    if (_sender != _allowlistedSenders[_sourceChainSelector])
+      revert SenderNotAllowlisted(_sender);
     _;
   }
 
   function allowlistDestinationChain(
     uint64 _destinationChainSelector,
-    bool allowed
+    bool _allowed
   ) external onlyOwner {
-    _allowlistedDestinationChains[_destinationChainSelector] = allowed;
+    _allowlistedDestinationChains[_destinationChainSelector] = _allowed;
   }
 
   function allowlistSourceChain(
     uint64 _sourceChainSelector,
-    bool allowed
+    bool _allowed
   ) external onlyOwner {
-    _allowlistedSourceChains[_sourceChainSelector] = allowed;
+    _allowlistedSourceChains[_sourceChainSelector] = _allowed;
+  }
+
+  function allowlistSender(
+    uint64 _sourceChainSelector,
+    address _sender
+  ) external onlyOwner {
+    _allowlistedSenders[_sourceChainSelector] = _sender;
   }
 
   function _sendMessagePayLINK(
@@ -150,7 +163,16 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
 
   function _ccipReceive(
     Client.Any2EVMMessage memory any2EvmMessage
-  ) internal override onlyAllowlisted(any2EvmMessage.sourceChainSelector) {
+  )
+    internal
+    override
+    onlyAllowlisted(
+      any2EvmMessage.sourceChainSelector,
+      abi.decode(any2EvmMessage.sender, (address))
+    )
+  {
+    lastReceivedMessageId = any2EvmMessage.messageId; // fetch the messageId
+
     bytes32 proof = abi.decode(any2EvmMessage.data, (bytes32));
     _increaseUnlockSteps(proof);
 
@@ -207,6 +229,12 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
     uint64 _sourceChainSelector
   ) public view returns (bool) {
     return _allowlistedSourceChains[_sourceChainSelector];
+  }
+
+  function allowlistSenders(
+    uint64 _sourceChainSelector
+  ) public view returns (address) {
+    return _allowlistedSenders[_sourceChainSelector];
   }
 
   receive() external payable {}
