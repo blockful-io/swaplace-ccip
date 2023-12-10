@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { destinationChainMumbai } from "../scripts/utils";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -27,7 +28,7 @@ async function main() {
   );
   const lastSwap = await ContractMumbai.totalSwaps();
   const swap = await ContractMumbai.getSwap(lastSwap);
-  console.log("Last Swap %s", lastSwap);
+  console.log("Last Swap ID: %s", lastSwap);
 
   // Overswap OverswapBNB
   const ContractBNB = await ethers.getContractAt(
@@ -42,10 +43,27 @@ async function main() {
     ERC721_BNB as string,
     signerBNB
   );
-  const tokenId = swap.asking[0].addr;
-  console.log("Minting Token ID %s", tokenId);
-  await MockERC721.connect(signerBNB).mintTo(signerBNB.address, tokenId);
-  await MockERC721.connect(signerBNB).approve(ContractBNB.address, tokenId);
+
+  // Mint ERC721
+  const tokenId = swap.asking[0].amountOrId;
+  try {
+    await MockERC721.ownerOf(tokenId);
+    console.log("Token ID %s already minted", tokenId);
+  } catch (error) {
+    var tx = await MockERC721.connect(signerBNB).mintTo(
+      signerBNB.address,
+      tokenId
+    );
+    await tx.wait();
+    console.log("Minted Token ID %s", tokenId);
+  }
+
+  // Approve ERC721
+  var tx = await MockERC721.connect(signerBNB).approve(
+    ContractBNB.address,
+    tokenId
+  );
+  await tx.wait();
   console.log(
     "Approved Token ID %s to contract %s",
     tokenId,
@@ -53,7 +71,10 @@ async function main() {
   );
 
   // Simulate fees
-  const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(swap);
+  const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(
+    swap,
+    destinationChainMumbai
+  );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
   console.log("Fee %s", ethers.utils.formatEther(fee));
@@ -70,23 +91,23 @@ async function main() {
   );
   await Link.connect(signerBNB).approve(
     ContractBNB.address,
-    ethers.utils.parseEther(fee)
+    ethers.utils.parseEther(ethers.utils.formatEther(fee))
   );
-  console.log(
-    "Approved %s LINK to contract %s",
-    ethers.utils.parseEther(fee),
-    Link.address
-  );
+  console.log("Approved %s LINK to contract %s", fee, Link.address);
 
   // Accept a Swap
-  const tx = await ContractBNB.connect(signerBNB).acceptSwap(swap, {
-    gasLimit: 3000000,
-    maxPriorityFeePerGas: 20001002003,
-    maxFeePerGas: 20001002003,
-  });
+  var tx = await ContractBNB.connect(signerBNB).acceptSwap(
+    swap,
+    destinationChainMumbai,
+    {
+      gasLimit: 3000000,
+      maxPriorityFeePerGas: 20001002003,
+      maxFeePerGas: 20001002003,
+    }
+  );
 
   const receipt = await tx.wait();
-  console.log("\nSent CCIP Message \nTx %s\n", receipt.transactionHash);
+  console.log("\nSent CCIP Message From BNB\nTx %s\n", receipt.transactionHash);
 }
 
 main().catch((error) => {
