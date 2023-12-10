@@ -59,7 +59,7 @@ interface IOverswap {
    * @dev Emitted when a new Swap is created.
    */
   event SwapCreated(
-    bytes32 indexed messageId,
+    uint256 indexed swapId,
     address indexed owner,
     uint256 indexed expiration
   );

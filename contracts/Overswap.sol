@@ -12,7 +12,7 @@ contract Overswap is CCIP, IOverswap {
 
   constructor(address _router, address _link) CCIP(_router, _link) {}
 
-  function createSwap(Swap calldata swap) external payable returns (bytes32) {
+  function createSwap(Swap calldata swap) external payable returns (uint256) {
     (, uint64 destinationChainSelector, uint32 expiration) = parseData(
       swap.config
     );
@@ -54,11 +54,13 @@ contract Overswap is CCIP, IOverswap {
     _transferFrom(msg.sender, address(this), swap.biding);
     _increaseUnlockSteps(proof);
 
-    _swaps[_totalSwaps] = swap;
+    uint256 swapId = _totalSwaps;
 
-    emit SwapCreated(proof, msg.sender, expiration);
+    _swaps[swapId] = swap;
 
-    return proof;
+    emit SwapCreated(swapId, msg.sender, expiration);
+
+    return swapId;
   }
 
   function acceptSwap(Swap calldata swap) public payable {
@@ -81,21 +83,26 @@ contract Overswap is CCIP, IOverswap {
     if (msg.value > 0) {
       _sendMessagePayNative(
         destinationChainSelector,
-        msg.sender,
+        allowlistSenders(destinationChainSelector),
         msg.value,
         proof
       );
     } else {
-      _sendMessagePayLINK(destinationChainSelector, msg.sender, proof);
+      _sendMessagePayLINK(
+        destinationChainSelector,
+        allowlistSenders(destinationChainSelector),
+        proof
+      );
     }
 
     _increaseUnlockSteps(proof);
     _transferFrom(msg.sender, address(this), swap.asking);
   }
 
-  function withdraw(bytes32 proof) public {
+  function withdraw(uint256 swapId) public {
+    Swap memory swap = getSwaps(swapId);
+    bytes32 proof = keccak256(abi.encode(swap));
     address receiver = getReceiver(proof);
-    Swap memory swap = getSwaps(proof);
 
     if (getUnlockSteps(proof) < 2) {
       revert NothingToWithdraw();
@@ -163,8 +170,8 @@ contract Overswap is CCIP, IOverswap {
     fees = _simulateFees(destinationChainSelector, swap.owner, proof);
   }
 
-  function getSwaps(bytes32 proof) public view returns (Swap memory) {
-    return _swaps[proof];
+  function getSwaps(uint256 swapId) public view returns (Swap memory) {
+    return _swaps[swapId];
   }
 
   function redeem() public payable onlyOwner {
