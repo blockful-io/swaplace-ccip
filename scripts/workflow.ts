@@ -3,7 +3,7 @@ import { deployCCIP } from "./deploy";
 import { getSigners } from "./utils";
 import { allowlistDestinationChain } from "./allowlistDestinationChain";
 import { allowlistSender } from "./allowlistSender";
-import { deployMock721 } from "./deployMock";
+import { deployMock721 } from "./deploy-mock";
 import { mintMockTokens } from "./mockMint";
 import { approveLinkSignerChain } from "./approve";
 import { sendMessagePayLINK } from "./sendMessagePayLINK";

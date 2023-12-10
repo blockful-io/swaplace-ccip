@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-interface IMessenger {
+interface ICCIP {
   error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees);
   error NothingToWithdraw();
   error FailedToWithdrawEth(address owner, address target, uint256 value);
