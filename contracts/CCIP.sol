@@ -9,7 +9,7 @@ import {IERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-sol
 import {IMessenger} from "./interfaces/IMessenger.sol";
 
 abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
-  mapping(bytes32 => bytes32) private _receivedProof;
+  mapping(bytes32 => address) private _receivers;
 
   mapping(bytes32 => uint16) private _unlockSteps;
 
@@ -165,21 +165,28 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
     )
   {
     bytes32 proof = abi.decode(any2EvmMessage.data, (bytes32));
-    _unlockSteps[proof] += 1;
+    _increaseUnlockSteps(proof);
+
+    address receiver = abi.decode(any2EvmMessage.sender, (address));
+    _receivers[proof] = receiver;
 
     emit MessageReceived(
       any2EvmMessage.messageId,
       any2EvmMessage.sourceChainSelector,
-      abi.decode(any2EvmMessage.sender, (address)),
-      abi.decode(any2EvmMessage.data, (bytes32))
+      receiver,
+      proof
     );
   }
 
-  function simulateFees(
+  function _increaseUnlockSteps(bytes32 _proof) internal {
+    _unlockSteps[_proof] += 1;
+  }
+
+  function _simulateFees(
     uint64 _destinationChainSelector,
     address _receiver,
     bytes32 _proof
-  ) public view returns (uint256 fees) {
+  ) internal view returns (uint256 fees) {
     Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
       _receiver,
       _proof,
@@ -191,12 +198,14 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, IMessenger {
     fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
   }
 
-  function getProofFrom(bytes32 messageId) public view returns (bytes32 proof) {
-    return _receivedProof[messageId];
-  }
-
   function getLinkToken() public view returns (IERC20) {
     return _linkToken;
+  }
+
+  function getProofReceiver(
+    bytes32 proof
+  ) public view returns (address receiver) {
+    return _receivers[proof];
   }
 
   function allowedDestinationChains(

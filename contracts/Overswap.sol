@@ -45,8 +45,8 @@ contract Overswap is CCIP, IOverswap {
     }
 
     _transferFrom(msg.sender, address(this), swap.biding);
+    _increaseUnlockSteps(proof);
 
-    _unlockSteps[proof] = 1;
     _swaps[swapId] = swap;
 
     emit SwapCreated(swapId, msg.sender, expiration);
@@ -86,5 +86,15 @@ contract Overswap is CCIP, IOverswap {
         i++;
       }
     }
+  }
+
+  function simulateFees(Swap calldata swap) public view returns (uint256 fees) {
+    (, uint64 destinationChainSelector, ) = _parseData(swap.config);
+    bytes32 proof = keccak256(abi.encode(_totalSwaps + 1, swap));
+    fees = _simulateFees(destinationChainSelector, swap.owner, proof);
+  }
+
+  function totalSwaps() public view returns (uint256) {
+    return _totalSwaps;
   }
 }
