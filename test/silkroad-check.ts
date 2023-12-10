@@ -22,16 +22,14 @@ async function main() {
 
   // Official Deployed
   // const Overswap = "0x5983E90123ccC820b96FAa34153530eF6621a17C"; // Sepolia
-  const Overswap = "0x1Aa55AE747D7AFd62D1b447692C1578E2f10A0aF"; // Mumbai
-  //   const Overswap = "0xEb5937936A252bF76294DeBbf4710400a080B01B"; // BNB
+  const Overswap = "0x654008B3b8FE0A715D03Ca63299aE69086a5dab3"; // Mumbai
+  //   const Overswap = "0x2627d6b68Eddc70A9A255bC46c0277433e87E8A2"; // BNB
 
   // Last deployed contract address
   const Contract = await ethers.getContractAt("Overswap", Overswap, signer);
 
   // Check
-  const response = await Contract.getSwaps(
-    "0x22bb4ecc59f9d039d365648ea77e4443cbced24b0f3cd70e57e8beae2582c591"
-  );
+  const response = await Contract.lastReceivedMessageId();
   console.log(response);
   console.log("aloo");
 

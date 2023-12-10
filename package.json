@@ -29,17 +29,15 @@
   "scripts": {
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run scripts/deploy.ts",
-    "allowChain": "npx hardhat run scripts/allowlistDestinationChain.ts",
-    "allowlist": "npx hardhat run scripts/allowlistSender.ts",
-    "approve": "npx hardhat run scripts/approve.ts",
-    "send": "npx hardhat run scripts/sendMessagePayLINK.ts",
     "test": "npx hardhat run test/silkroad.ts",
     "mint": "npx hardhat run test/mint-mock.ts",
     "status-check": "npx hardhat run test/silkroad-check.ts",
     "deploy-mock": "npx hardhat run test/deploy-mock.ts",
-    "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
     "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai",
-    "deploy-bsc": "npx hardhat run test/silkroad-mumbai.ts --network bsc"
+    "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
+    "deploy-bsc": "npx hardhat run test/silkroad-mumbai.ts --network bsc",
+    "allowlist": "npx hardhat run test/silkroad-allowlist.ts",
+    "createSwap": "npx hardhat run test/silkroad-create.ts --network mumbai",
+    "acceptSwap": "npx hardhat run test/silkroad-accept.ts --network sepolia"
   }
 }

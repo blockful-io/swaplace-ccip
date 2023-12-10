@@ -16,7 +16,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   // Router Address
-  const router = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f"; // Mumbai
+  const router = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f"; // BNB
 
   // $LINK Address
   const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // Mumbai

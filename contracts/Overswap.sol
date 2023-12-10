@@ -100,7 +100,7 @@ contract Overswap is CCIP, IOverswap {
   }
 
   function withdraw(uint256 swapId) public {
-    Swap memory swap = getSwaps(swapId);
+    Swap memory swap = getSwap(swapId);
     bytes32 proof = keccak256(abi.encode(swap));
     address receiver = getReceiver(proof);
 
@@ -170,7 +170,11 @@ contract Overswap is CCIP, IOverswap {
     fees = _simulateFees(destinationChainSelector, swap.owner, proof);
   }
 
-  function getSwaps(uint256 swapId) public view returns (Swap memory) {
+  function totalSwaps() public view returns (uint256) {
+    return _totalSwaps;
+  }
+
+  function getSwap(uint256 swapId) public view returns (Swap memory) {
     return _swaps[swapId];
   }
 
