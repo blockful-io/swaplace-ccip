@@ -20,24 +20,41 @@ async function main() {
   // $LINK Address
   const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
 
-  // Overswap OverswapMumbai
-  const OverswapMumbai = await ethers.getContractAt(
+  // Overswap ContractMumbai
+  const ContractMumbai = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_MUMBAI as string,
     signerMumbai
   );
 
-  // Mock OverswapMumbai
+  // Mock ContractMumbai
   const MockERC721 = await ethers.getContractAt(
     "MockERC721",
     ERC721_MUMBAI as string,
     signerMumbai
   );
-  const tokenId = 420;
-  await MockERC721.mintTo(signerMumbai.address, tokenId);
-  await MockERC721.connect(signerMumbai).approve(
-    OverswapMumbai.address,
+  const totalSupply = await MockERC721.totalSupply();
+  const tokenId = 1000 + Number(totalSupply);
+  console.log("Using Token ID:", tokenId);
+
+  // Mint ERC721
+  var tx = await MockERC721.connect(signerMumbai).mintTo(
+    signerMumbai.address,
     tokenId
+  );
+  await tx.wait();
+  console.log("Minted Token ID %s", tokenId);
+
+  // Approve ERC721
+  var tx = await MockERC721.connect(signerMumbai).approve(
+    ContractMumbai.address,
+    tokenId
+  );
+  await tx.wait();
+  console.log(
+    "Approved Token ID %s to contract %s",
+    tokenId,
+    MockERC721.address
   );
 
   // Create a swap
@@ -48,7 +65,7 @@ async function main() {
   const askingAmountOrId = [tokenId];
 
   const swap: Swap = await composeSwap(
-    OverswapMumbai,
+    ContractMumbai,
     signerMumbai.address,
     ethers.constants.AddressZero,
     destinationChainBNB,
@@ -60,8 +77,9 @@ async function main() {
   );
 
   // Simulate fees
-  const simulateFee = await OverswapMumbai.connect(signerMumbai).simulateFees(
-    swap
+  const simulateFee = await ContractMumbai.connect(signerMumbai).simulateFees(
+    swap,
+    destinationChainBNB
   );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
@@ -76,25 +94,28 @@ async function main() {
     ],
     signerMumbai
   );
-  await Link.connect(signerMumbai).approve(OverswapMumbai.address, fee);
+  await Link.connect(signerMumbai).approve(ContractMumbai.address, fee);
   console.log(
     "Approved %s LINK and to the contract %s",
     fee,
-    OverswapMumbai.address
+    ContractMumbai.address
   );
 
   // Create a Swap
-  const tx = await OverswapMumbai.connect(signerMumbai).createSwap(swap, {
+  var tx = await ContractMumbai.connect(signerMumbai).createSwap(swap, {
     gasLimit: 3000000,
     maxPriorityFeePerGas: 20001002003,
     maxFeePerGas: 20001002003,
   });
 
   const receipt = await tx.wait();
-  console.log("\nSent CCIP Message \nTx %s\n", receipt.transactionHash);
+  console.log(
+    "\nSent CCIP Message from Mumbai \nTx %s\n",
+    receipt.transactionHash
+  );
 
   // Claim dust in the contract
-  await OverswapMumbai.redeem();
+  await ContractMumbai.redeem();
 }
 
 main().catch((error) => {
