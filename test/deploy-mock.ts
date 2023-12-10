@@ -1,13 +1,12 @@
 import { ethers } from "hardhat";
-import { saveContractAddress } from "./utils";
 
 async function main() {
   const [signer] = await ethers.getSigners();
   const Factory = await ethers.getContractFactory("MockERC721", signer);
   const Contract = await Factory.deploy({
-    gasLimit: 4000000,
-    maxPriorityFeePerGas: 201002003,
-    maxFeePerGas: 201002003,
+    gasLimit: 5000000,
+    maxPriorityFeePerGas: 2001002003,
+    maxFeePerGas: 2010002003,
   });
   // await Contract.deployed();
   console.log(

@@ -3,12 +3,12 @@ import { ethers } from "hardhat";
 async function deploy(signer: any, router: string, link: string) {
   const Factory = await ethers.getContractFactory("Overswap", signer);
   const Contract = await Factory.deploy(router, link);
-  await Contract.deployed();
   console.log(
     "\nContract Overswap \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
+  await Contract.deployed();
   return Contract;
 }
 

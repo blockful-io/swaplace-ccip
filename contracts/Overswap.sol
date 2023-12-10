@@ -124,10 +124,6 @@ contract Overswap is CCIP, IOverswap {
     }
   }
 
-  function test() public view returns (uint256) {
-    return 1;
-  }
-
   function packData(
     address allowed,
     uint64 destinationChainSelector,
@@ -149,9 +145,11 @@ contract Overswap is CCIP, IOverswap {
     );
   }
 
-  function simulateFees(Swap calldata swap) public view returns (uint256 fees) {
+  function simulateFees(
+    Swap calldata swap
+  ) public view returns (uint256 fees, bytes32 proof) {
     (, uint64 destinationChainSelector, ) = parseData(swap.config);
-    bytes32 proof = keccak256(abi.encode(swap));
+    proof = keccak256(abi.encode(swap));
     fees = _simulateFees(destinationChainSelector, swap.owner, proof);
   }
 

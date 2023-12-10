@@ -16,13 +16,13 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   // Router Address
-  const router = "0x0bf3de8c5d3e8a2b34d2beeb17abfcebaf363a59"; // Sepolia
+  const router = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f"; // Mumbai
 
   // $LINK Address
-  const link = "0x779877A7B0D9E8603169DdbD7836e478b4624789"; // Sepolia
+  const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // Mumbai
 
   // Destination Chain
-  const destinationChain = "12532609583862916517"; // Mumbai
+  const destinationChain = "13264668187771770619"; // Sepolia
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
   const Contract = await deploy(signer, router, link);

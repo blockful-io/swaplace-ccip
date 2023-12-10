@@ -83,9 +83,9 @@ export async function makeSwap(
 
 export async function composeSwap(
   Contract: any,
-  destinationChainSelector: any,
   owner: any,
   allowed: any,
+  destinationChainSelector: any,
   expiration: any,
   bidingAddr: any[],
   bidingAmountOrId: any[],
@@ -111,9 +111,9 @@ export async function composeSwap(
 
   return await makeSwap(
     Contract,
-    destinationChainSelector,
     owner,
     allowed,
+    destinationChainSelector,
     expiration,
     biding,
     asking

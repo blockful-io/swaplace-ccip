@@ -38,6 +38,7 @@
     "mint": "npx hardhat run test/mint-mock.ts",
     "deploy-mock": "npx hardhat run test/deploy-mock.ts",
     "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
-    "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai"
+    "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai",
+    "deploy-bnb": "npx hardhat run test/silkroad-mumbai.ts --network bsc"
   }
 }

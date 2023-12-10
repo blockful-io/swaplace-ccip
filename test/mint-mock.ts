@@ -5,8 +5,9 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   // Last Mock Deployed
-  // const mockERC721 = "0x416AbcB8217721C6a12f776419aaFc27391eA5c3"; // sepolia
-  const mockERC721 = "0x2De6d72A010c81817544773615923F2765c4C04f"; // mumbai
+  // const mockERC721 = "0x416AbcB8217721C6a12f776419aaFc27391eA5c3"; // Sepolia
+  // const mockERC721 = "0x2De6d72A010c81817544773615923F2765c4C04f"; // Mumbai
+  const mockERC721 = "0xB7c49b0d0449796031d197AAF3CFaa2a49c63865"; // BNB
 
   // Last deployed contract address
   const Mock = new ethers.Contract(mockERC721, abi, signer);
