@@ -23,7 +23,6 @@ async function main() {
 
   // Destination Chain
   const destinationChain = "12532609583862916517"; // Mumbai
-
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
   const Contract = await deploy(signer, router, link);
   await Contract.allowlistDestinationChain(destinationChain, true);

@@ -35,7 +35,7 @@
     "approve": "npx hardhat run scripts/approve.ts",
     "send": "npx hardhat run scripts/sendMessagePayLINK.ts",
     "test": "npx hardhat run test/silkroad.ts",
-    "mint": "npx hardhat run test/mintMocks.ts",
+    "mint": "npx hardhat run test/mint-mock.ts",
     "deploy-mock": "npx hardhat run test/deploy-mock.ts",
     "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
     "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai"

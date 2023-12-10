@@ -17,6 +17,10 @@ export const routerMumbai = "0x1035cabc275068e0f4b745a29cedf38e13af41b1";
 export const linkSepolia = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
 export const linkMumbai = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
 
+export async function blocktimestamp(): Promise<any> {
+  return (await ethers.provider.getBlock("latest")).timestamp;
+}
+
 export async function getSigners() {
   const rpcSepolia = new ethers.providers.JsonRpcProvider(SEPOLIA_RPC_URL);
   const rpcMumbai = new ethers.providers.JsonRpcProvider(MUMBAI_RPC_URL);
