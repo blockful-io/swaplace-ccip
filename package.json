@@ -35,7 +35,7 @@
     "deploy-mock": "npx hardhat run test/deploy-mock.ts",
     "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai",
     "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
-    "deploy-bsc": "npx hardhat run test/silkroad-mumbai.ts --network bsc",
+    "deploy-bsc": "npx hardhat run test/silkroad-bnb.ts --network bsc",
     "allowlist": "npx hardhat run test/silkroad-allowlist.ts",
     "create-swap": "npx hardhat run test/silkroad-create.ts --network mumbai",
     "accept-swap": "npx hardhat run test/silkroad-accept.ts --network sepolia"
