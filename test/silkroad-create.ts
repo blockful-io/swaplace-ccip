@@ -1,47 +1,57 @@
 import { ethers } from "hardhat";
 import { Swap, composeSwap } from "./SwapFactory";
-import { blocktimestamp } from "../scripts/utils";
+import { blocktimestamp, destinationChainBNB } from "../scripts/utils";
 import dotenv from "dotenv";
+dotenv.config();
+
+const {
+  DEPLOYER_PRIVATE_KEY,
+  MUMBAI_RPC_URL,
+  OVERSWAP_MUMBAI,
+  ERC721_BNB,
+  ERC721_MUMBAI,
+} = process.env;
 
 async function main() {
-  const [signer] = await ethers.getSigners();
+  // Prepare Signers
+  const rpcMumbai = new ethers.providers.JsonRpcProvider(MUMBAI_RPC_URL);
+  const signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
 
   // $LINK Address
   const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
 
-  // Destination Chain
-  const destinationChain = "13264668187771770619"; // BNB
+  // Overswap OverswapMumbai
+  const OverswapMumbai = await ethers.getContractAt(
+    "Overswap",
+    OVERSWAP_MUMBAI as string,
+    signerMumbai
+  );
 
-  // Last Mock Deployed
-  const mockERC721_mumbai = "0x2De6d72A010c81817544773615923F2765c4C04f"; // Mumbai
-  const mockERC721_bnb = "0xB7c49b0d0449796031d197AAF3CFaa2a49c63865"; // BNB
-
-  // Official Deployed
-  const Overswap = "0x654008B3b8FE0A715D03Ca63299aE69086a5dab3"; // Mumbai
-
-  // Last deployed contract address
-  const Contract = await ethers.getContractAt("Overswap", Overswap, signer);
-
+  // Mock OverswapMumbai
   const MockERC721 = await ethers.getContractAt(
     "MockERC721",
-    mockERC721_mumbai,
-    signer
+    ERC721_MUMBAI as string,
+    signerMumbai
   );
-  const tokenId = 302;
-  await MockERC721.mintTo(signer.address, tokenId);
+  const tokenId = 400;
+  await MockERC721.mintTo(signerMumbai.address, tokenId);
+  await MockERC721.connect(signerMumbai).approve(
+    OverswapMumbai.address,
+    tokenId
+  );
 
   // Create a swap
-  const bidingAddr = [mockERC721_mumbai];
-  const bidingAmountOrId = [301];
+  const bidingAddr = [ERC721_MUMBAI];
+  const bidingAmountOrId = [tokenId];
 
-  const askingAddr = [mockERC721_bnb];
+  const askingAddr = [ERC721_BNB];
   const askingAmountOrId = [1];
 
   const swap: Swap = await composeSwap(
-    Contract,
-    signer.address,
+    OverswapMumbai,
+    signerMumbai.address,
     ethers.constants.AddressZero,
-    destinationChain,
+    destinationChainBNB,
     (await blocktimestamp()) * 2,
     bidingAddr,
     bidingAmountOrId,
@@ -50,7 +60,9 @@ async function main() {
   );
 
   // Simulate fees
-  const simulateFee = await Contract.connect(signer).simulateFees(swap);
+  const simulateFee = await OverswapMumbai.connect(signerMumbai).simulateFees(
+    swap
+  );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
   console.log("Fee %s", ethers.utils.formatEther(fee));
@@ -62,19 +74,17 @@ async function main() {
     [
       "function approve(address spender, uint256 amount) external returns (bool)",
     ],
-    signer
+    signerMumbai
   );
-  await Link.connect(signer).approve(Contract.address, fee);
-  await MockERC721.connect(signer).approve(Contract.address, tokenId);
+  await Link.connect(signerMumbai).approve(OverswapMumbai.address, fee);
   console.log(
-    "Approved %s LINK and Token Id %s to contract %s",
+    "Approved %s LINK and to the contract %s",
     fee,
-    MockERC721.address,
-    Contract.address
+    OverswapMumbai.address
   );
 
   // Create a Swap
-  const tx = await Contract.connect(signer).createSwap(swap, {
+  const tx = await OverswapMumbai.connect(signerMumbai).createSwap(swap, {
     gasLimit: 3000000,
     maxPriorityFeePerGas: 20001002003,
     maxFeePerGas: 20001002003,
@@ -83,7 +93,8 @@ async function main() {
   const receipt = await tx.wait();
   console.log("\nSent CCIP Message \nTx %s\n", receipt.transactionHash);
 
-  await Contract.redeem();
+  // Claim dust in the contract
+  await OverswapMumbai.redeem();
 }
 
 main().catch((error) => {

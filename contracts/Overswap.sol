@@ -51,11 +51,11 @@ contract Overswap is CCIP, IOverswap {
         sstore(_totalSwaps.slot, add(sload(_totalSwaps.slot), 1))
       }
     }
+
     _transferFrom(msg.sender, address(this), swap.biding);
     _increaseUnlockSteps(proof);
 
     uint256 swapId = _totalSwaps;
-
     _swaps[swapId] = swap;
 
     emit SwapCreated(swapId, msg.sender, expiration);
@@ -114,12 +114,12 @@ contract Overswap is CCIP, IOverswap {
 
     for (uint256 i = 0; i < swap.asking.length; ) {
       ITransfer(swap.asking[i].addr).approve(
-        address(this),
+        swap.owner,
         swap.asking[i].amountOrId
       ); // try to remove to see if it works
       ITransfer(swap.asking[i].addr).transferFrom(
         address(this),
-        receiver,
+        swap.owner,
         swap.asking[i].amountOrId
       );
       unchecked {
