@@ -1,14 +1,16 @@
 import { ethers } from "hardhat";
+import { saveContractAddress } from "../scripts/utils";
 
 async function deploy(signer: any, router: string, link: string) {
   const Factory = await ethers.getContractFactory("Overswap", signer);
   const Contract = await Factory.deploy(router, link);
   console.log(
-    "\nContract Overswap \nDeployed to %s \nAt Tx %s\n",
+    "\nContract Overswap on BNB \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
   await Contract.deployed();
+  saveContractAddress("OVERSWAP_BNB", Contract.address);
   return Contract;
 }
 
@@ -19,7 +21,7 @@ async function main() {
   const router = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f"; // BNB
 
   // $LINK Address
-  const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // Mumbai
+  const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // BNB
 
   // Destination Chain
   const destinationChain = "12532609583862916517"; // Mumbai
