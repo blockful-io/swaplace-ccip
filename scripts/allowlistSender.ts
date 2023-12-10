@@ -1,16 +1,27 @@
 import { ethers } from "hardhat";
-import { getSigners } from "./utils";
+import { destinationChainBNB, destinationChainMumbai } from "./utils";
 import dotenv from "dotenv";
 dotenv.config();
 
-const { OVERSWAP_SEPOLIA, OVERSWAP_MUMBAI } = process.env;
+const {
+  DEPLOYER_PRIVATE_KEY,
+  MUMBAI_RPC_URL,
+  BSCTESTNET_RPC_URL,
+  OVERSWAP_MUMBAI,
+  OVERSWAP_BNB,
+} = process.env;
 
 export async function allowlistSender() {
-  const [signerSepolia, signerMumbai] = await getSigners();
-  const OverswapSepolia = await ethers.getContractAt(
+  const rpcMumbai = new ethers.providers.JsonRpcProvider(MUMBAI_RPC_URL);
+  const rpcBNB = new ethers.providers.JsonRpcProvider(BSCTESTNET_RPC_URL);
+
+  var signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
+  var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
+
+  const OverswapBNB = await ethers.getContractAt(
     "Overswap",
-    OVERSWAP_SEPOLIA as string,
-    signerSepolia
+    OVERSWAP_BNB as string,
+    signerBNB
   );
   const OverswapMumbai = await ethers.getContractAt(
     "Overswap",
@@ -20,8 +31,8 @@ export async function allowlistSender() {
 
   // Set allowlists for the ccip senders
   // The senders should be the same contact but on different chains
-  await OverswapSepolia.allowlistSender(OverswapMumbai.address, true);
-  await OverswapMumbai.allowlistSender(OverswapSepolia.address, true);
+  await OverswapBNB.allowlistSender(destinationChainMumbai, true);
+  await OverswapMumbai.allowlistSender(destinationChainBNB, true);
   console.log("Allowlisted Senders\n");
 }
 

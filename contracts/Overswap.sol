@@ -157,7 +157,11 @@ contract Overswap is CCIP, IOverswap {
   ) public view returns (uint256 fees, bytes32 proof) {
     (, uint64 destinationChainSelector, ) = parseData(swap.config);
     proof = keccak256(abi.encode(swap));
-    fees = _simulateFees(destinationChainSelector, swap.owner, proof);
+    fees = _simulateFees(
+      destinationChainSelector,
+      allowlistSenders(destinationChainSelector),
+      proof
+    );
   }
 
   function totalSwaps() public view returns (uint256) {

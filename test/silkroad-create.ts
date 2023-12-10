@@ -33,7 +33,7 @@ async function main() {
     ERC721_MUMBAI as string,
     signerMumbai
   );
-  const tokenId = 400;
+  const tokenId = 420;
   await MockERC721.mintTo(signerMumbai.address, tokenId);
   await MockERC721.connect(signerMumbai).approve(
     OverswapMumbai.address,

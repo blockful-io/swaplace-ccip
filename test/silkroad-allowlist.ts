@@ -18,33 +18,33 @@ export async function deployCCIP() {
   var signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
   var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
-  const Mumbai = await ethers.getContractAt(
+  const ContracMumbai = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_MUMBAI as string,
     signerMumbai
   );
 
-  const BNB = await ethers.getContractAt(
+  const ContractBNB = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_BNB as string,
     signerBNB
   );
 
-  await Mumbai.connect(signerMumbai).allowlistSender(
+  await ContracMumbai.connect(signerMumbai).allowlistSender(
     destinationChainBNB,
-    OVERSWAP_BNB
+    ContractBNB.address
   );
-  var res = await Mumbai.allowlistSenders(destinationChainBNB);
+  var res = await ContracMumbai.allowlistSenders(destinationChainBNB);
   console.log(
     "Allowlisted BNB chain on Mumbai, the allowed Overswap address -> %s",
     res
   );
 
-  await BNB.connect(signerBNB).allowlistSender(
+  await ContractBNB.connect(signerBNB).allowlistSender(
     destinationChainMumbai,
-    OVERSWAP_MUMBAI
+    ContracMumbai.address
   );
-  var res = await BNB.allowlistSenders(destinationChainMumbai);
+  var res = await ContractBNB.allowlistSenders(destinationChainMumbai);
   console.log(
     "Allowlisted Mumbai chain on BNB, the allowed Overswap address -> %s",
     res

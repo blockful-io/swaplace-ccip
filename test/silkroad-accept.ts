@@ -43,6 +43,7 @@ async function main() {
     signerBNB
   );
   const tokenId = swap.asking[0].addr;
+  console.log("Minting Token ID %s", tokenId);
   await MockERC721.connect(signerBNB).mintTo(signerBNB.address, tokenId);
   await MockERC721.connect(signerBNB).approve(ContractBNB.address, tokenId);
   console.log(
