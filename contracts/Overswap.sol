@@ -63,12 +63,11 @@ contract Overswap is CCIP, IOverswap {
     return swapId;
   }
 
-  function acceptSwap(Swap calldata swap) public payable {
-    (
-      address allowed,
-      uint64 destinationChainSelector,
-      uint32 expiration
-    ) = parseData(swap.config);
+  function acceptSwap(
+    Swap calldata swap,
+    uint64 destinationChainSelector
+  ) public payable {
+    (address allowed, , uint32 expiration) = parseData(swap.config);
 
     if (allowed != address(0) && allowed != msg.sender) {
       revert InvalidAddress(msg.sender);
@@ -153,9 +152,9 @@ contract Overswap is CCIP, IOverswap {
   }
 
   function simulateFees(
-    Swap calldata swap
+    Swap calldata swap,
+    uint64 destinationChainSelector
   ) public view returns (uint256 fees, bytes32 proof) {
-    (, uint64 destinationChainSelector, ) = parseData(swap.config);
     proof = keccak256(abi.encode(swap));
     fees = _simulateFees(
       destinationChainSelector,
