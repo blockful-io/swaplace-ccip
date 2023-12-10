@@ -102,36 +102,22 @@ contract Overswap is CCIP, IOverswap {
   function withdraw(uint256 swapId) public {
     Swap memory swap = getSwap(swapId);
     bytes32 proof = keccak256(abi.encode(swap));
-    address receiver = getReceiver(proof);
 
     if (getUnlockSteps(proof) < 2) {
       revert NothingToWithdraw();
     }
 
-    if (receiver != msg.sender) {
+    if (swap.owner != msg.sender) {
       revert InvalidAddress(msg.sender);
     }
 
-    for (uint256 i = 0; i < swap.asking.length; ) {
-      ITransfer(swap.asking[i].addr).approve(
-        swap.owner,
-        swap.asking[i].amountOrId
-      ); // try to remove to see if it works
-      ITransfer(swap.asking[i].addr).transferFrom(
-        address(this),
-        swap.owner,
-        swap.asking[i].amountOrId
-      );
-      unchecked {
-        i++;
-      }
-    }
+    _transferFrom(address(this), swap.owner, swap.asking);
   }
 
   function _transferFrom(
     address from,
     address to,
-    Asset[] calldata assets
+    Asset[] memory assets
   ) internal {
     for (uint256 i = 0; i < assets.length; ) {
       ITransfer(assets[i].addr).transferFrom(from, to, assets[i].amountOrId);

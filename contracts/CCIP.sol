@@ -11,8 +11,6 @@ import {ICCIP} from "./interfaces/ICCIP.sol";
 abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
   bytes32 public lastReceivedMessageId;
 
-  mapping(bytes32 => address) private _receivers;
-
   mapping(bytes32 => uint16) private _unlockSteps;
 
   IERC20 private _linkToken;
@@ -176,13 +174,10 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
     bytes32 proof = abi.decode(any2EvmMessage.data, (bytes32));
     _increaseUnlockSteps(proof);
 
-    address receiver = abi.decode(any2EvmMessage.sender, (address));
-    _receivers[proof] = receiver;
-
     emit MessageReceived(
       any2EvmMessage.messageId,
       any2EvmMessage.sourceChainSelector,
-      receiver,
+      address(this),
       proof
     );
   }
@@ -209,10 +204,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
 
   function getLinkToken() public view returns (IERC20) {
     return _linkToken;
-  }
-
-  function getReceiver(bytes32 proof) public view returns (address receiver) {
-    return _receivers[proof];
   }
 
   function getUnlockSteps(bytes32 proof) public view returns (uint16 steps) {
