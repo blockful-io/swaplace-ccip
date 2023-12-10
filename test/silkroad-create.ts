@@ -45,7 +45,7 @@ async function main() {
   const bidingAmountOrId = [tokenId];
 
   const askingAddr = [ERC721_BNB];
-  const askingAmountOrId = [1];
+  const askingAmountOrId = [tokenId];
 
   const swap: Swap = await composeSwap(
     OverswapMumbai,

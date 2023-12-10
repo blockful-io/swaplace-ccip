@@ -29,19 +29,34 @@ async function main() {
   const swap = await ContractMumbai.getSwap(lastSwap);
   console.log("Last Swap %s", lastSwap);
 
-  // Last deployed contract address
+  // Overswap OverswapBNB
   const ContractBNB = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_BNB as string,
     signerBNB
   );
 
+  // Mock ERC721
+  const MockERC721 = await ethers.getContractAt(
+    "MockERC721",
+    ERC721_BNB as string,
+    signerBNB
+  );
+  const tokenId = swap.asking[0].addr;
+  await MockERC721.connect(signerBNB).mintTo(signerBNB.address, tokenId);
+  await MockERC721.connect(signerBNB).approve(ContractBNB.address, tokenId);
+  console.log(
+    "Approved Token ID %s to contract %s",
+    tokenId,
+    MockERC721.address
+  );
+
   // Simulate fees
-  // const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(swap);
-  // const fee = simulateFee[0];
-  // const proof = simulateFee[1];
-  // console.log("Fee %s", ethers.utils.formatEther(fee));
-  // console.log("Proof %s", proof);
+  const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(swap);
+  const fee = simulateFee[0];
+  const proof = simulateFee[1];
+  console.log("Fee %s", ethers.utils.formatEther(fee));
+  console.log("Proof %s", proof);
 
   // Approve usage of link and NFTs
   const link = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06"; // BNB
@@ -54,16 +69,13 @@ async function main() {
   );
   await Link.connect(signerBNB).approve(
     ContractBNB.address,
-    ethers.utils.parseEther("0.3")
+    ethers.utils.parseEther(fee)
   );
-  console.log("Approved %s LINK to contract %s", 0.3, Link.address);
-  const MockERC721 = await ethers.getContractAt(
-    "MockERC721",
-    ERC721_BNB as string,
-    signerBNB
+  console.log(
+    "Approved %s LINK to contract %s",
+    ethers.utils.parseEther(fee),
+    Link.address
   );
-  await MockERC721.connect(signerBNB).approve(ContractBNB.address, 1);
-  console.log("Approved Token ID 1 to contract %s", MockERC721.address);
 
   // Accept a Swap
   const tx = await ContractBNB.connect(signerBNB).acceptSwap(swap, {

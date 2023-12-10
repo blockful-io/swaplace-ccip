@@ -63,4 +63,14 @@ interface IOverswap {
     address indexed owner,
     uint256 indexed expiration
   );
+
+  /**
+   * @dev Emitted when a Swap is accepted.
+   */
+  event SwapAccepted(bytes32 indexed proof, address indexed acceptee);
+
+  /**
+   * @dev Emitted when a Swap content is withdrawn.
+   */
+  event Withdraw(bytes32 indexed proof, address indexed acceptee);
 }

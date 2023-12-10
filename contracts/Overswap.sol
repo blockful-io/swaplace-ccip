@@ -97,6 +97,8 @@ contract Overswap is CCIP, IOverswap {
 
     _increaseUnlockSteps(proof);
     _transferFrom(msg.sender, address(this), swap.asking);
+
+    emit SwapAccepted(proof, msg.sender);
   }
 
   function withdraw(uint256 swapId) public {
@@ -112,6 +114,8 @@ contract Overswap is CCIP, IOverswap {
     }
 
     _transferFrom(address(this), swap.owner, swap.asking);
+
+    emit Withdraw(proof, msg.sender);
   }
 
   function _transferFrom(
