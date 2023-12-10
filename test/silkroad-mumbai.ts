@@ -22,7 +22,7 @@ async function main() {
   const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
 
   // Destination Chain
-  const destinationChain = "16015286601757825753"; // Sepolia
+  const destinationChain = "13264668187771770619"; // BNB
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
   const Contract = await deploy(signer, router, link);

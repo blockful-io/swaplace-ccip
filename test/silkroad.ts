@@ -22,22 +22,22 @@ async function main() {
 
   // Official Deployed
   // const Overswap = "0x5983E90123ccC820b96FAa34153530eF6621a17C"; // Sepolia
-  const Overswap = "0x61f7a7a17566Eca49412885eA855751b057EA9B8"; // Mumbai
+  const Overswap = "0xb7A42919ae66745Ffa69940De9d3DD99703eACb1"; // Mumbai
   // const Overswap = "0x93E1247408F392c93b26939b15dcB7CdfdA92B4c"; // BNB
 
   // Last deployed contract address
   const Contract = await ethers.getContractAt("Overswap", Overswap, signer);
+  const MockERC721 = await ethers.getContractAt(
+    "MockERC721",
+    mockERC721_mumbai,
+    signer
+  );
+  const tokenId = 101;
+  await MockERC721.mintTo(signer.address, tokenId);
 
-  // Last deployed mock address
-  // const MockContract = await ethers.getContractAt(
-  //   "MockERC721",
-  //   mockERC721_sepolia,
-  //   signer
-  // );
-
-  // Create a trade
+  // Create a swap
   const bidingAddr = [mockERC721_mumbai];
-  const bidingAmountOrId = [1];
+  const bidingAmountOrId = [tokenId];
 
   const askingAddr = [mockERC721_bnb];
   const askingAmountOrId = [1];
@@ -54,33 +54,33 @@ async function main() {
     askingAmountOrId
   );
 
-  // // Approve usage of link
-  // const Link = new ethers.Contract(
-  //   link,
-  //   [
-  //     "function approve(address spender, uint256 amount) external returns (bool)",
-  //   ],
-  //   signer
-  // );
-  // await Link.connect(signer).approve(
-  //   Contract.address,
-  //   ethers.utils.parseEther("0.1")
-  // );
-  // console.log("Approved 0.1 LINK to contract %s", Contract.address);
+  // Simulate fees
+  const simulateFee = await Contract.connect(signer).simulateFees(swap);
+  const fee = simulateFee[0].toString();
 
-  const fee = await Contract.connect(signer).simulateFees(swap);
-  console.log(fee);
+  // // Approve usage of link and NFTs
+  const Link = new ethers.Contract(
+    link,
+    [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+    ],
+    signer
+  );
+  await Link.connect(signer).approve(Contract.address, fee);
+  await MockERC721.connect(signer).approve(Contract.address, tokenId);
+  console.log("Approved %s LINK to contract %s", fee, Contract.address);
 
-  // Send CCIP Message
+  // Create a Swap
   const tx = await Contract.connect(signer).createSwap(swap, {
     gasLimit: 3000000,
     maxPriorityFeePerGas: 20001002003,
     maxFeePerGas: 20001002003,
-    value: ethers.utils.parseEther("0.7"),
   });
 
   const receipt = await tx.wait();
   console.log("\nSent CCIP Message \nTx %s\n", receipt.transactionHash);
+
+  await Contract.redeem();
 }
 
 main().catch((error) => {

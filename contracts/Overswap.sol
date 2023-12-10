@@ -34,6 +34,7 @@ contract Overswap is CCIP, IOverswap {
       messageId = _sendMessagePayNative(
         destinationChainSelector,
         msg.sender,
+        msg.value,
         proof
       );
     } else {
@@ -72,7 +73,12 @@ contract Overswap is CCIP, IOverswap {
     bytes32 proof = keccak256(abi.encode(swap));
 
     if (msg.value > 0) {
-      _sendMessagePayNative(destinationChainSelector, msg.sender, proof);
+      _sendMessagePayNative(
+        destinationChainSelector,
+        msg.sender,
+        msg.value,
+        proof
+      );
     } else {
       _sendMessagePayLINK(destinationChainSelector, msg.sender, proof);
     }
@@ -155,5 +161,9 @@ contract Overswap is CCIP, IOverswap {
 
   function getSwaps(bytes32 proof) public view returns (Swap memory) {
     return _swaps[proof];
+  }
+
+  function redeem() public payable {
+    payable(address(msg.sender)).transfer(address(this).balance);
   }
 }
