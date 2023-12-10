@@ -30,23 +30,31 @@ export async function deployCCIP() {
     signerBNB
   );
 
-  await ContracMumbai.connect(signerMumbai).allowlistSender(
+  var tx = await ContracMumbai.connect(signerMumbai).allowlistSender(
     destinationChainBNB,
     ContractBNB.address
   );
-  var res = await ContracMumbai.allowlistSenders(destinationChainBNB);
-  console.log(
-    "Allowlisted BNB chain on Mumbai, the allowed Overswap address -> %s",
-    res
-  );
+  await tx.wait();
 
-  await ContractBNB.connect(signerBNB).allowlistSender(
+  var tx = await ContractBNB.connect(signerBNB).allowlistSender(
     destinationChainMumbai,
     ContracMumbai.address
   );
+  await tx.wait();
+
+  var res = await ContracMumbai.allowlistSenders(destinationChainBNB);
   var res = await ContractBNB.allowlistSenders(destinationChainMumbai);
+
+  console.log("\nThe Mumbai Address that was allowlist", ContracMumbai.address);
+  console.log("Destination Chain that was saved", destinationChainMumbai);
+  console.log("\nThe BNB Address that was allowlist", ContractBNB.address);
+  console.log("Destination Chain that was saved", destinationChainBNB);
   console.log(
-    "Allowlisted Mumbai chain on BNB, the allowed Overswap address -> %s",
+    "\nAllowlisted Mumbai chain on BNB, the allowed Overswap address on Mumbai -> %s",
+    res
+  );
+  console.log(
+    "Allowlisted BNB chain on Mumbai, the allowed Overswap address on BNB -> %s",
     res
   );
 }
