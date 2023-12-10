@@ -7,26 +7,20 @@ clean:
 compile:
 	yarn compile
 
-deploy:
-	yarn deploy
+deploy-mumbai:
+	yarn deploy-mumbai
 
-deployMock:
-	yarn deployMock
-
-allowChain:
-	yarn allowChain
+deploy-bsc:
+	yarn deploy-bsc
 
 allowlist:
 	yarn allowlist
 
-mint:
-	yarn mint
+createswap:
+	yarn create-swap
 
-approve:
-	yarn approve
-
-send:
-	yarn send
+acceptswap:
+	yarn accept-swap
 
 # Define a target to run the scripts in sequence
-test: clean compile deploy deployMock allowlist mint approve send
+all: clean compile deploy-mumbai deploy-bsc allowlist createswap acceptswap
