@@ -67,7 +67,7 @@ async function main() {
   const swap: Swap = await composeSwap(
     ContractMumbai,
     signerMumbai.address,
-    ethers.constants.AddressZero,
+    signerMumbai.address,
     destinationChainBNB,
     (await blocktimestamp()) * 2,
     bidingAddr,
