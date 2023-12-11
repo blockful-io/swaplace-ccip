@@ -18,7 +18,7 @@ export async function deployCCIP() {
   var signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
   var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
-  const ContracMumbai = await ethers.getContractAt(
+  const ContractMumbai = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_MUMBAI as string,
     signerMumbai
@@ -30,7 +30,7 @@ export async function deployCCIP() {
     signerBNB
   );
 
-  var tx = await ContracMumbai.connect(signerMumbai).allowlistSender(
+  var tx = await ContractMumbai.connect(signerMumbai).allowlistSender(
     destinationChainBNB,
     ContractBNB.address
   );
@@ -38,14 +38,17 @@ export async function deployCCIP() {
 
   var tx = await ContractBNB.connect(signerBNB).allowlistSender(
     destinationChainMumbai,
-    ContracMumbai.address
+    ContractMumbai.address
   );
   await tx.wait();
 
-  var res = await ContracMumbai.allowlistSenders(destinationChainBNB);
+  var res = await ContractMumbai.allowlistSenders(destinationChainBNB);
   var res = await ContractBNB.allowlistSenders(destinationChainMumbai);
 
-  console.log("\nThe Mumbai Address that was allowlist", ContracMumbai.address);
+  console.log(
+    "\nThe Mumbai Address that was allowlist",
+    ContractMumbai.address
+  );
   console.log("Destination Chain that was saved", destinationChainMumbai);
   console.log("\nThe BNB Address that was allowlist", ContractBNB.address);
   console.log("Destination Chain that was saved", destinationChainBNB);
