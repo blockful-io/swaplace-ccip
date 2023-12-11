@@ -17,8 +17,6 @@ NOTE: We mocked the BNB rpc into Sepolia in the last second to have the official
 
 ## Usage
 
-In order to run the complete flow of buying an insurance to getting refunded, we have 6 stepsm
-
 ### Deploy the main contracts and run the entire flux using
 
 - Prepare a Mock ERC721 calling the deploy-mock script with the network you want to deploy to.
