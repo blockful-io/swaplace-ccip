@@ -38,6 +38,7 @@
     "deploy-bsc": "npx hardhat run test/silkroad-bnb.ts --network bsc",
     "allowlist": "npx hardhat run test/silkroad-allowlist.ts",
     "create-swap": "npx hardhat run test/silkroad-create.ts --network mumbai",
-    "accept-swap": "npx hardhat run test/silkroad-accept.ts --network sepolia"
+    "accept-swap": "npx hardhat run test/silkroad-accept.ts --network sepolia",
+    "redeem": "npx hardhat run test/silkroad-redeem.ts --network sepolia"
   }
 }
