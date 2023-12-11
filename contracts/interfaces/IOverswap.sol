@@ -60,14 +60,19 @@ interface IOverswap {
    */
   event SwapCreated(
     uint256 indexed swapId,
+    bytes32 indexed proof,
     address indexed owner,
-    uint256 indexed expiration
+    uint256 expiration
   );
 
   /**
    * @dev Emitted when a Swap is accepted.
    */
-  event SwapAccepted(bytes32 indexed proof, address indexed acceptee);
+  event SwapAccepted(
+    uint256 indexed swapId,
+    bytes32 indexed proof,
+    address indexed acceptee
+  );
 
   /**
    * @dev Emitted when a Swap content is withdrawn.
