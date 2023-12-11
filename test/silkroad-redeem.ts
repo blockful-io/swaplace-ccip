@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
 import dotenv from "dotenv";
-import { destinationChainMumbai, destinationChainBNB } from "../scripts/utils";
 dotenv.config();
 
 const {
@@ -31,11 +30,10 @@ export async function main() {
   );
 
   var lastSwapId = await ContractMumbai.totalSwaps();
-  console.log(await ContractMumbai.getSwap(lastSwapId));
 
   // ethers abi encode funcition call
   const encoded = ContractMumbai.interface.encodeFunctionData(
-    "redeem(uint256)",
+    "redeem(uint256)", // my cache glitched and I had to do this manually
     [lastSwapId]
   );
 
