@@ -32,7 +32,6 @@
     "test": "npx hardhat run test/silkroad.ts",
     "mint": "npx hardhat run test/mint-mock.ts",
     "status-check": "npx hardhat run test/silkroad-check.ts",
-    "deploy-mock": "npx hardhat run test/deploy-mock.ts",
     "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai",
     "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
     "deploy-bsc": "npx hardhat run test/silkroad-bnb.ts --network bsc",
