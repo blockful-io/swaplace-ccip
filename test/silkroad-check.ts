@@ -48,7 +48,7 @@ async function main() {
 
   // Check unlock steps amount
   var proof =
-    "0x14786d3f3657d74ad4ff26091bfdfd277e0f53b716e6d1000b4339a5fc19e7a8";
+    "0x30f64ede7fd59320e349d506dff95d33ee5208f9a7ea2e4e5fd005da49a8f694";
   var response = await ContractMumbai.getUnlockSteps(proof);
   console.log("Unlocks achieved: %s on Mumbai", response);
 

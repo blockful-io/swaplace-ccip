@@ -8,17 +8,23 @@ const { DEPLOYER_PRIVATE_KEY, SEPOLIA_RPC_URL, MUMBAI_RPC_URL } = process.env;
 
 export const destinationChainSepolia = "16015286601757825753";
 export const destinationChainMumbai = "12532609583862916517";
-export const destinationChainBNB = "13264668187771770619";
+// export const destinationChainBNB = "13264668187771770619";
+// Sepolia
+export const destinationChainBNB = "16015286601757825753";
 
 // Link Router Address
 export const routerSepolia = "0x0bf3de8c5d3e8a2b34d2beeb17abfcebaf363a59";
 export const routerMumbai = "0x1035cabc275068e0f4b745a29cedf38e13af41b1";
-export const routerBNB = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f";
+// export const routerBNB = "0xe1053ae1857476f36a3c62580ff9b016e8ee8f6f";
+// Sepolia
+export const routerBNB = "0x0bf3de8c5d3e8a2b34d2beeb17abfcebaf363a59";
 
 // $LINK Address
 export const linkSepolia = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
 export const linkMumbai = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB";
-export const linkBNB = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06";
+// export const linkBNB = "0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06";
+// Sepolia
+export const linkBNB = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
 
 export async function blocktimestamp(): Promise<any> {
   return (await ethers.provider.getBlock("latest")).timestamp;

@@ -32,13 +32,15 @@ export async function deployCCIP() {
 
   var tx = await ContractMumbai.connect(signerMumbai).allowlistSender(
     destinationChainBNB,
-    ContractBNB.address
+    ContractBNB.address,
+    { gasLimit: 4000000 }
   );
   await tx.wait();
 
   var tx = await ContractBNB.connect(signerBNB).allowlistSender(
     destinationChainMumbai,
-    ContractMumbai.address
+    ContractMumbai.address,
+    { gasLimit: 4000000 }
   );
   await tx.wait();
 

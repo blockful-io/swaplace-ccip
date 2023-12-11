@@ -37,16 +37,16 @@ async function main() {
     abi,
     signerSepolia
   );
-  const MockBNB = new ethers.Contract(ERC721_BNB as string, abi, signerBNB);
+  // const MockBNB = new ethers.Contract(ERC721_BNB as string, abi, signerBNB);
 
   // Mint to user
-  const tokenId = 2032;
+  const tokenId = 2054;
   await MockMumbai.mintTo(
-    "0xFD9eE68000Dc92aa6c67F8f6EB5d9d1a24086fAd",
+    "0xFCB751Ad42b20a8C6f312D857A37Fb3CB5E08bb0",
     tokenId
   );
   await MockSepolia.mintTo(
-    "0xFD9eE68000Dc92aa6c67F8f6EB5d9d1a24086fAd",
+    "0xFCB751Ad42b20a8C6f312D857A37Fb3CB5E08bb0",
     tokenId
   );
   // await MockBNB.mintTo(signerBNB.address, tokenId);

@@ -3,6 +3,7 @@ import {
   destinationChainMumbai,
   routerSepolia,
   linkSepolia,
+  saveContractAddress,
 } from "../scripts/utils";
 
 async function deploy(signer: any, router: string, link: string) {
@@ -14,6 +15,7 @@ async function deploy(signer: any, router: string, link: string) {
     Contract.deployTransaction.hash
   );
   await Contract.deployed();
+  saveContractAddress("OVERSWAP_SEPOLIA", Contract.address);
   return Contract;
 }
 

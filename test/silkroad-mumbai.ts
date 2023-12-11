@@ -26,9 +26,12 @@ async function main() {
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
   const Contract = await deploy(signer, routerMumbai, linkMumbai);
-  var tx = await Contract.allowlistDestinationChain(destinationChain, true);
+  var tx = await Contract.allowlistDestinationChain(
+    destinationChainSepolia,
+    true
+  );
   await tx.wait();
-  var tx = await Contract.allowlistSourceChain(destinationChain, true);
+  var tx = await Contract.allowlistSourceChain(destinationChainSepolia, true);
   await tx.wait();
 }
 
