@@ -46,19 +46,19 @@ contract Overswap is CCIP, IOverswap {
       );
     }
 
+    _transferFrom(msg.sender, address(this), swap.biding);
+    _increaseUnlockSteps(proof);
+
     unchecked {
       assembly {
         sstore(_totalSwaps.slot, add(sload(_totalSwaps.slot), 1))
       }
     }
 
-    _transferFrom(msg.sender, address(this), swap.biding);
-    _increaseUnlockSteps(proof);
-
     uint256 swapId = _totalSwaps;
     _swaps[swapId] = swap;
 
-    emit SwapCreated(swapId, msg.sender, expiration);
+    emit SwapCreated(swapId, proof, msg.sender, expiration);
 
     return swapId;
   }
@@ -69,7 +69,7 @@ contract Overswap is CCIP, IOverswap {
   ) public payable {
     (address allowed, , uint32 expiration) = parseData(swap.config);
 
-    if (allowed != address(0) && allowed != msg.sender) {
+    if (allowed != msg.sender) {
       revert InvalidAddress(msg.sender);
     }
 
@@ -97,24 +97,74 @@ contract Overswap is CCIP, IOverswap {
     _increaseUnlockSteps(proof);
     _transferFrom(msg.sender, address(this), swap.asking);
 
-    emit SwapAccepted(proof, msg.sender);
+    unchecked {
+      assembly {
+        sstore(_totalSwaps.slot, add(sload(_totalSwaps.slot), 1))
+      }
+    }
+
+    uint256 swapId = _totalSwaps;
+    _swaps[swapId] = swap;
+
+    emit SwapAccepted(swapId, proof, msg.sender);
   }
 
-  function withdraw(uint256 swapId) public {
+  function redeem(uint256 swapId) external returns (bool) {
     Swap memory swap = getSwap(swapId);
     bytes32 proof = keccak256(abi.encode(swap));
+    (
+      address allowed,
+      uint64 destinationChainSelector,
+      uint32 expiration
+    ) = parseData(swap.config);
+
+    if (swap.owner == msg.sender || allowed == msg.sender) {} else {
+      revert InvalidAddress(msg.sender);
+    }
+
+    _swaps[swapId].config = packData(allowed, destinationChainSelector, 0);
+
+    if (expiration < block.timestamp) {
+      if (allowed == msg.sender) {
+        _transferFrom(address(this), allowed, swap.asking);
+      }
+
+      if (swap.owner == msg.sender) {
+        _transferFrom(address(this), swap.owner, swap.biding);
+      }
+
+      return true;
+    }
 
     if (getUnlockSteps(proof) < 2) {
       revert NothingToWithdraw();
     }
 
-    if (swap.owner != msg.sender) {
-      revert InvalidAddress(msg.sender);
+    if (swap.owner == msg.sender) {
+      for (uint256 i = 0; i < swap.biding.length; i++) {
+        uint256 balance = ITransfer(swap.biding[i].addr).balanceOf(
+          address(this)
+        );
+        if (balance > 0) {
+          //   _transferFrom(address(this), swap.owner, swap.biding);
+        }
+      }
     }
 
-    _transferFrom(address(this), swap.owner, swap.asking);
+    if (allowed == msg.sender) {
+      for (uint256 i = 0; i < swap.asking.length; i++) {
+        uint256 balance = ITransfer(swap.asking[i].addr).balanceOf(
+          address(this)
+        );
+        if (balance > 0) {
+          //   _transferFrom(address(this), allowed, swap.asking);
+        }
+      }
+    }
 
     emit Withdraw(proof, msg.sender);
+
+    return true;
   }
 
   function _transferFrom(
