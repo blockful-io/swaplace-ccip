@@ -31,10 +31,8 @@ $ yarn deploy-mock --network <chain>
 
 - Run the entire flow with
 
-````shell
-
 ```shell
 $ make all
-````
+```
 
 That's it, have great trips!
