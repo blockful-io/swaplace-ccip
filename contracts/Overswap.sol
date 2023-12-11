@@ -141,25 +141,11 @@ contract Overswap is CCIP, IOverswap {
     }
 
     if (swap.owner == msg.sender) {
-      for (uint256 i = 0; i < swap.biding.length; i++) {
-        uint256 balance = ITransfer(swap.biding[i].addr).balanceOf(
-          address(this)
-        );
-        if (balance > 0) {
-          //   _transferFrom(address(this), swap.owner, swap.biding);
-        }
-      }
+      _transferFrom(address(this), swap.owner, swap.biding);
     }
 
     if (allowed == msg.sender) {
-      for (uint256 i = 0; i < swap.asking.length; i++) {
-        uint256 balance = ITransfer(swap.asking[i].addr).balanceOf(
-          address(this)
-        );
-        if (balance > 0) {
-          //   _transferFrom(address(this), allowed, swap.asking);
-        }
-      }
+      _transferFrom(address(this), allowed, swap.asking);
     }
 
     emit Withdraw(proof, msg.sender);
