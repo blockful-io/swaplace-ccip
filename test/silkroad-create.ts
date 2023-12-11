@@ -113,9 +113,6 @@ async function main() {
     "\nSent CCIP Message from Mumbai \nTx %s\n",
     receipt.transactionHash
   );
-
-  // Claim dust in the contract
-  await ContractMumbai.redeem();
 }
 
 main().catch((error) => {
