@@ -8,6 +8,8 @@ const {
   BSCTESTNET_RPC_URL,
   OVERSWAP_MUMBAI,
   OVERSWAP_BNB,
+  ERC721_BNB,
+  ERC721_MUMBAI,
 } = process.env;
 
 async function main() {
@@ -17,7 +19,7 @@ async function main() {
   var signerMumbai = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcMumbai);
   var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
-  const ContracMumbai = await ethers.getContractAt(
+  const ContractMumbai = await ethers.getContractAt(
     "Overswap",
     OVERSWAP_MUMBAI as string,
     signerMumbai
@@ -30,11 +32,11 @@ async function main() {
   );
 
   // Check las message received
-  var response = await ContracMumbai.lastReceivedMessageId();
+  var response = await ContractMumbai.lastReceivedMessageId();
   console.log(
     "Received response: %s \n On address: %s",
     response,
-    ContracMumbai.address
+    ContractMumbai.address
   );
 
   var response = await ContractBNB.lastReceivedMessageId();
@@ -46,12 +48,36 @@ async function main() {
 
   // Check unlock steps amount
   var proof =
-    "0x89ba2a82aad4b4f09b6843674b3e4a857b24e9e212bc836cfbcf7f9956de50ab";
-  var response = await ContracMumbai.getUnlockSteps(proof);
-  console.log("Received response: %s on Mumbai", response);
+    "0x14786d3f3657d74ad4ff26091bfdfd277e0f53b716e6d1000b4339a5fc19e7a8";
+  var response = await ContractMumbai.getUnlockSteps(proof);
+  console.log("Unlocks achieved: %s on Mumbai", response);
 
   var response = await ContractBNB.getUnlockSteps(proof);
-  console.log("Received response: %s on BNB", response);
+  console.log("Unlocks achieved: %s on BNB", response);
+
+  // Check total swaps
+  var response = await ContractMumbai.totalSwaps();
+  console.log("Last Swap ID: %s on Mumbai", response);
+
+  var response = await ContractBNB.totalSwaps();
+  console.log("Last Swap ID: %s on BNB", response);
+
+  // Check the balance of each swap
+  const MockERC721BNB = await ethers.getContractAt(
+    "MockERC721",
+    ERC721_BNB as string,
+    signerBNB
+  );
+  const MockERC721Mumbai = await ethers.getContractAt(
+    "MockERC721",
+    ERC721_MUMBAI as string,
+    signerMumbai
+  );
+
+  var balance = await MockERC721BNB.balanceOf(ContractBNB.address);
+  console.log("Balance asking:", balance.toString());
+  var balance = await MockERC721Mumbai.balanceOf(ContractMumbai.address);
+  console.log("Balance asking:", balance.toString());
 }
 
 main().catch((error) => {
