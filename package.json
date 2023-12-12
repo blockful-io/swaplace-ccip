@@ -29,16 +29,15 @@
   "scripts": {
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "test": "npx hardhat run test/silkroad.ts",
-    "mint": "npx hardhat run test/mint-mock.ts",
-    "deploy-mock": "npx hardhat run test/deploy-mock.ts",
-    "status-check": "npx hardhat run test/silkroad-check.ts",
-    "deploy-mumbai": "npx hardhat run test/silkroad-mumbai.ts --network mumbai",
-    "deploy-sepolia": "npx hardhat run test/silkroad-sepolia.ts --network sepolia",
-    "deploy-bsc": "npx hardhat run test/silkroad-bnb.ts --network bsc",
-    "allowlist": "npx hardhat run test/silkroad-allowlist.ts",
-    "create-swap": "npx hardhat run test/silkroad-create.ts",
-    "accept-swap": "npx hardhat run test/silkroad-accept.ts",
-    "redeem": "npx hardhat run test/silkroad-redeem.ts"
+    "deploy-mock": "npx hardhat run scripts/deploy-mock.ts",
+    "mint": "npx hardhat run scripts/mint/silkroad-mint.ts",
+    "deploy-mumbai": "npx hardhat run scripts/silkroad-mumbai.ts",
+    "deploy-sepolia": "npx hardhat run scripts/silkroad-sepolia.ts",
+    "deploy-bsc": "npx hardhat run scripts/silkroad-bnb.ts",
+    "allowlist": "npx hardhat run scripts/silkroad-allowlist.ts",
+    "create-swap": "npx hardhat run scripts/silkroad-create.ts",
+    "accept-swap": "npx hardhat run scripts/silkroad-accept.ts",
+    "status-check": "npx hardhat run scripts/silkroad-check.ts",
+    "redeem": "npx hardhat run scripts/silkroad-redeem.ts"
   }
 }
