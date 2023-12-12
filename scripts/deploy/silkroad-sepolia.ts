@@ -1,17 +1,25 @@
 import { ethers } from "hardhat";
-import { saveContractAddress } from "../scripts/utils";
-import { destinationChainMumbai, routerBNB, linkBNB } from "../scripts/utils";
+import {
+  destinationChainMumbai,
+  routerSepolia,
+  linkSepolia,
+  saveContractAddress,
+} from "../utils";
 
 async function deploy(signer: any, router: string, link: string) {
   const Factory = await ethers.getContractFactory("Overswap", signer);
-  const Contract = await Factory.deploy(router, link);
+  const Contract = await Factory.deploy(router, link, {
+    gasLimit: 5000000,
+    maxPriorityFeePerGas: 2001002003,
+    maxFeePerGas: 2010002003,
+  });
   console.log(
-    "\nContract Overswap on BNB \nDeployed to %s \nAt Tx %s\n",
+    "\nContract Overswap \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
   await Contract.deployed();
-  saveContractAddress("OVERSWAP_BNB", Contract.address);
+  saveContractAddress("OVERSWAP_SEPOLIA", Contract.address);
   return Contract;
 }
 
@@ -19,7 +27,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
-  const Contract = await deploy(signer, routerBNB, linkBNB);
+  const Contract = await deploy(signer, routerSepolia, linkSepolia);
   var tx = await Contract.allowlistDestinationChain(
     destinationChainMumbai,
     true

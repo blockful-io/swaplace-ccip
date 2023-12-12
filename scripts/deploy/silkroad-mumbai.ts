@@ -1,14 +1,14 @@
 import { ethers } from "hardhat";
-import { saveContractAddress } from "../scripts/utils";
-import {
-  destinationChainSepolia,
-  routerMumbai,
-  linkMumbai,
-} from "../scripts/utils";
+import { saveContractAddress } from "../utils";
+import { destinationChainSepolia, routerMumbai, linkMumbai } from "../utils";
 
 async function deploy(signer: any, router: string, link: string) {
   const Factory = await ethers.getContractFactory("Overswap", signer);
-  const Contract = await Factory.deploy(router, link);
+  const Contract = await Factory.deploy(router, link, {
+    gasLimit: 5000000,
+    maxPriorityFeePerGas: 2001002003,
+    maxFeePerGas: 2010002003,
+  });
   console.log(
     "\nContract Overswap on MUMBAI \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
