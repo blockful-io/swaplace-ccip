@@ -6,8 +6,11 @@ dotenv.config();
 const {
   DEPLOYER_PRIVATE_KEY,
   SEPOLIA_RPC_URL,
+  OP_GOERLI_RPC_URL,
   MUMBAI_RPC_URL,
-  BSCTESTNET_RPC_URL,
+  FUJI_RPC_URL,
+  BSC_TESTNET_RPC_URL,
+  BASE_GOERLI_RPC_URL,
   ETHERSCAN_API_KEY,
 } = process.env;
 
@@ -24,12 +27,24 @@ const config: HardhatUserConfig = {
       url: `${SEPOLIA_RPC_URL}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
+    op: {
+      url: `${OP_GOERLI_RPC_URL}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
     mumbai: {
       url: `${MUMBAI_RPC_URL}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
+    fuji: {
+      url: `${FUJI_RPC_URL}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
     bsc: {
-      url: `${BSCTESTNET_RPC_URL}`,
+      url: `${BSC_TESTNET_RPC_URL}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
+    base: {
+      url: `${BASE_GOERLI_RPC_URL}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
   },
