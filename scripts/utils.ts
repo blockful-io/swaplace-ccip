@@ -30,15 +30,13 @@ export const fuji_link = "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846";
 export const base_goerli_link = "0xd886e2286fd1073df82462ea1822119600af80b6";
 export const op_goerli_link = "0xdc2CC710e42857672E7907CF474a69B63B93089f";
 
-export async function getMockFromEnv() {
+export async function getMockData() {
   const chainId = (await ethers.provider.getNetwork()).chainId;
 
   let mock = {
     address: "",
     envName: "",
   };
-
-  let contractAddress: string;
 
   if (chainId == 11155111) {
     mock.address = process.env.ERC721_SEPOLIA as string;
@@ -65,6 +63,73 @@ export async function getMockFromEnv() {
   return mock;
 }
 
+export async function getChainData() {
+  const chainId = (await ethers.provider.getNetwork()).chainId;
+
+  let data = {
+    address: "",
+    envName: "",
+    chainSelector: "",
+    routerAddress: "",
+    linkAddress: "",
+  };
+
+  switch (chainId) {
+    case 11155111:
+      data.address = process.env.SWAPLACE_SEPOLIA as string;
+      data.envName = "SWAPLACE_SEPOLIA";
+      data.chainSelector = sepolia_chain_selector;
+      data.routerAddress = sepolia_router;
+      data.linkAddress = sepolia_link;
+      break;
+
+    case 80001:
+      data.address = process.env.SWAPLACE_MUMBAI as string;
+      data.envName = "SWAPLACE_MUMBAI";
+      data.chainSelector = mumbai_chain_selector;
+      data.routerAddress = mumbai_router;
+      data.linkAddress = mumbai_link;
+      break;
+
+    case 97:
+      data.address = process.env.SWAPLACE_BNB as string;
+      data.envName = "SWAPLACE_BNB";
+      data.chainSelector = bnb_chain_selector;
+      data.routerAddress = bnb_router;
+      data.linkAddress = bnb_link;
+      break;
+
+    case 43113:
+      data.address = process.env.SWAPLACE_FUJI as string;
+      data.envName = "SWAPLACE_FUJI";
+      data.chainSelector = fuji_chain_selector;
+      data.routerAddress = fuji_router;
+      data.linkAddress = fuji_link;
+      break;
+
+    case 84531:
+      data.address = process.env.SWAPLACE_BASE_GOERLI as string;
+      data.envName = "SWAPLACE_BASE_GOERLI";
+      data.chainSelector = base_goerli_chain_selector;
+      data.routerAddress = base_goerli_router;
+      data.linkAddress = base_goerli_link;
+      break;
+
+    case 420:
+      data.address = process.env.SWAPLACE_OP_GOERLI as string;
+      data.envName = "SWAPLACE_OP_GOERLI";
+      data.chainSelector = op_goerli_chain_selector;
+      data.routerAddress = op_goerli_router;
+      data.linkAddress = op_goerli_link;
+      break;
+
+    default:
+      throw new Error("Invalid chain ID fo CCIP");
+  }
+
+  return data;
+}
+
 export async function blocktimestamp(): Promise<any> {
   return (await ethers.provider.getBlock("latest")).timestamp;
 }
@@ -87,7 +152,7 @@ export function saveContractAddress(varName: string, contractAddress: string) {
       if (writeErr) {
         console.error("Error writing to .env file:", writeErr);
       } else {
-        console.log("Contract address saved in .env file:", contractAddress);
+        console.log("Contract address saved in .env: %s \n", contractAddress);
       }
     });
   });
