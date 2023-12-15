@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { saveContractAddress } from "../utils";
-import { destinationChainSepolia, routerMumbai, linkMumbai } from "../utils";
+import { sepolia_chain_selector, mumbai_router, mumbai_link } from "../utils";
 
 async function deploy(signer: any, router: string, link: string) {
   const Factory = await ethers.getContractFactory("Overswap", signer);
@@ -25,13 +25,13 @@ async function main() {
   const destinationChain = "13264668187771770619"; // BNB
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
-  const Contract = await deploy(signer, routerMumbai, linkMumbai);
+  const Contract = await deploy(signer, mumbai_router, mumbai_link);
   var tx = await Contract.allowlistDestinationChain(
-    destinationChainSepolia,
+    sepolia_chain_selector,
     true
   );
   await tx.wait();
-  var tx = await Contract.allowlistSourceChain(destinationChainSepolia, true);
+  var tx = await Contract.allowlistSourceChain(sepolia_chain_selector, true);
   await tx.wait();
 }
 

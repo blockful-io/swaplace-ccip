@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import dotenv from "dotenv";
-import { destinationChainMumbai, destinationChainBNB } from "../scripts/utils";
+import { mumbai_chain_selector, bnb_chain_selector } from "../scripts/utils";
 dotenv.config();
 
 const {
@@ -31,29 +31,29 @@ export async function deployCCIP() {
   );
 
   var tx = await ContractMumbai.connect(signerMumbai).allowlistSender(
-    destinationChainBNB,
+    bnb_chain_selector,
     ContractBNB.address,
     { gasLimit: 4000000 }
   );
   await tx.wait();
 
   var tx = await ContractBNB.connect(signerBNB).allowlistSender(
-    destinationChainMumbai,
+    mumbai_chain_selector,
     ContractMumbai.address,
     { gasLimit: 4000000 }
   );
   await tx.wait();
 
-  var res = await ContractMumbai.allowlistSenders(destinationChainBNB);
-  var res = await ContractBNB.allowlistSenders(destinationChainMumbai);
+  var res = await ContractMumbai.allowlistSenders(bnb_chain_selector);
+  var res = await ContractBNB.allowlistSenders(mumbai_chain_selector);
 
   console.log(
     "\nThe Mumbai Address that was allowlist",
     ContractMumbai.address
   );
-  console.log("Destination Chain that was saved", destinationChainMumbai);
+  console.log("Destination Chain that was saved", mumbai_chain_selector);
   console.log("\nThe BNB Address that was allowlist", ContractBNB.address);
-  console.log("Destination Chain that was saved", destinationChainBNB);
+  console.log("Destination Chain that was saved", bnb_chain_selector);
   console.log(
     "\nAllowlisted Mumbai chain on BNB, the allowed Overswap address on Mumbai -> %s",
     res

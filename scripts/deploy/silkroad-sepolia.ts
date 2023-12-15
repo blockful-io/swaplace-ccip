@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
 import {
-  destinationChainMumbai,
-  routerSepolia,
-  linkSepolia,
+  mumbai_chain_selector,
+  sepolia_router,
+  sepolia_link,
   saveContractAddress,
 } from "../utils";
 
@@ -27,13 +27,13 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   // Deploy a new contract instead, and allowlist the destination chain in sequence (setup)
-  const Contract = await deploy(signer, routerSepolia, linkSepolia);
+  const Contract = await deploy(signer, sepolia_router, sepolia_link);
   var tx = await Contract.allowlistDestinationChain(
-    destinationChainMumbai,
+    mumbai_chain_selector,
     true
   );
   await tx.wait();
-  var tx = await Contract.allowlistSourceChain(destinationChainMumbai, true);
+  var tx = await Contract.allowlistSourceChain(mumbai_chain_selector, true);
   await tx.wait();
 }
 

@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { destinationChainMumbai } from "../scripts/utils";
+import { mumbai_chain_selector } from "../scripts/utils";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -73,7 +73,7 @@ async function main() {
   // Simulate fees
   const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(
     swap,
-    destinationChainMumbai
+    mumbai_chain_selector
   );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
@@ -98,7 +98,7 @@ async function main() {
   // Accept a Swap
   var tx = await ContractBNB.connect(signerBNB).acceptSwap(
     swap,
-    destinationChainMumbai,
+    mumbai_chain_selector,
     {
       gasLimit: 3000000,
       maxPriorityFeePerGas: 20001002003,

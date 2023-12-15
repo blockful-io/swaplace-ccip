@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { Swap, composeSwap } from "./SwapFactory";
-import { blocktimestamp, destinationChainBNB } from "../scripts/utils";
+import { blocktimestamp, bnb_chain_selector } from "../scripts/utils";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -68,7 +68,7 @@ async function main() {
     ContractMumbai,
     signerMumbai.address,
     signerMumbai.address,
-    destinationChainBNB,
+    bnb_chain_selector,
     (await blocktimestamp()) * 2,
     bidingAddr,
     bidingAmountOrId,
@@ -79,7 +79,7 @@ async function main() {
   // Simulate fees
   const simulateFee = await ContractMumbai.connect(signerMumbai).simulateFees(
     swap,
-    destinationChainBNB
+    bnb_chain_selector
   );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
