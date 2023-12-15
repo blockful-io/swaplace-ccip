@@ -1,13 +1,13 @@
 import { ethers } from "hardhat";
 import { abi } from "../../artifacts/contracts/MockERC721.sol/MockERC721.json";
-import { getMockFromEnv } from "../utils";
+import { getMockData } from "../utils";
 
 async function mint(receiver?: any, tokenId?: any) {
   // Prepare Signers
   const [signer] = await ethers.getSigners();
 
   // Get contract address from .env
-  const mock = await getMockFromEnv();
+  const mock = await getMockData();
 
   // Create contract instance
   const ContractMock = new ethers.Contract(mock.address, abi, signer);

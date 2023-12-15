@@ -7,8 +7,8 @@ const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
   BSCTESTNET_RPC_URL,
-  OVERSWAP_MUMBAI,
-  OVERSWAP_BNB,
+  SWAPLACE_MUMBAI,
+  SWAPLACE_BNB,
   ERC721_BNB,
 } = process.env;
 
@@ -22,18 +22,18 @@ async function main() {
 
   // Getting the Swap Struct from another chain
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
   const lastSwap = await ContractMumbai.totalSwaps();
   const swap = await ContractMumbai.getSwap(lastSwap);
   console.log("Last Swap ID: %s", lastSwap);
 
-  // Overswap OverswapBNB
+  // Swaplace SwaplaceBNB
   const ContractBNB = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_BNB as string,
+    "Swaplace",
+    SWAPLACE_BNB as string,
     signerBNB
   );
 

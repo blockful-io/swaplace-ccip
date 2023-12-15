@@ -3,19 +3,19 @@ import { saveContractAddress } from "../utils";
 import { mumbai_chain_selector, bnb_router, bnb_link } from "../utils";
 
 async function deploy(signer: any, router: string, link: string) {
-  const Factory = await ethers.getContractFactory("Overswap", signer);
+  const Factory = await ethers.getContractFactory("Swaplace", signer);
   const Contract = await Factory.deploy(router, link, {
     gasLimit: 5000000,
     maxPriorityFeePerGas: 2001002003,
     maxFeePerGas: 2010002003,
   });
   console.log(
-    "\nContract Overswap on BNB \nDeployed to %s \nAt Tx %s\n",
+    "\nContract Swaplace on BNB \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
   await Contract.deployed();
-  saveContractAddress("OVERSWAP_BNB", Contract.address);
+  saveContractAddress("SWAPLACE_BNB", Contract.address);
   return Contract;
 }
 

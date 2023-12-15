@@ -7,8 +7,8 @@ const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
   BSCTESTNET_RPC_URL,
-  OVERSWAP_MUMBAI,
-  OVERSWAP_BNB,
+  SWAPLACE_MUMBAI,
+  SWAPLACE_BNB,
 } = process.env;
 
 export async function deployCCIP() {
@@ -19,14 +19,14 @@ export async function deployCCIP() {
   var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
 
   const ContractBNB = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_BNB as string,
+    "Swaplace",
+    SWAPLACE_BNB as string,
     signerBNB
   );
 
@@ -55,11 +55,11 @@ export async function deployCCIP() {
   console.log("\nThe BNB Address that was allowlist", ContractBNB.address);
   console.log("Destination Chain that was saved", bnb_chain_selector);
   console.log(
-    "\nAllowlisted Mumbai chain on BNB, the allowed Overswap address on Mumbai -> %s",
+    "\nAllowlisted Mumbai chain on BNB, the allowed Swaplace address on Mumbai -> %s",
     res
   );
   console.log(
-    "Allowlisted BNB chain on Mumbai, the allowed Overswap address on BNB -> %s",
+    "Allowlisted BNB chain on Mumbai, the allowed Swaplace address on BNB -> %s",
     res
   );
 }

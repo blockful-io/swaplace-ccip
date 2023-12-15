@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { getMockFromEnv, saveContractAddress } from "../utils";
 
-async function deployMock() {
+async function deployMock(signers: any) {
   // Get contract address from .env
   const mock = await getMockFromEnv();
 
@@ -12,8 +12,7 @@ async function deployMock() {
   }
 
   // Deploy contract and save address to .env
-  const [signer] = await ethers.getSigners();
-  const Factory = await ethers.getContractFactory("MockERC721", signer);
+  const Factory = await ethers.getContractFactory("MockERC721", signers[0]);
   const Contract = await Factory.deploy({
     gasLimit: 5000000,
     maxPriorityFeePerGas: 2001002003,
@@ -23,7 +22,7 @@ async function deployMock() {
   saveContractAddress(mock.envName, Contract.address);
 
   console.log(
-    "\nContract Mock ERC721 \nDeployed to %s \nAt Tx %s\n",
+    "\nContract Mock ERC721 \nDeployed to %s \nAt Tx %s",
     Contract.address,
     Contract.deployTransaction.hash
   );
@@ -31,7 +30,9 @@ async function deployMock() {
   return Contract.address;
 }
 
-deployMock().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+ethers.getSigners().then((signers) => {
+  deployMock(signers).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 });

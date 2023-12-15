@@ -6,8 +6,8 @@ const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
   BSCTESTNET_RPC_URL,
-  OVERSWAP_MUMBAI,
-  OVERSWAP_BNB,
+  SWAPLACE_MUMBAI,
+  SWAPLACE_BNB,
 } = process.env;
 
 export async function main() {
@@ -18,14 +18,14 @@ export async function main() {
   var signerBNB = new ethers.Wallet(`${DEPLOYER_PRIVATE_KEY}`, rpcBNB);
 
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
 
   const ContractBNB = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_BNB as string,
+    "Swaplace",
+    SWAPLACE_BNB as string,
     signerBNB
   );
 

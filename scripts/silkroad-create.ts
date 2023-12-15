@@ -7,7 +7,7 @@ dotenv.config();
 const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
-  OVERSWAP_MUMBAI,
+  SWAPLACE_MUMBAI,
   ERC721_BNB,
   ERC721_MUMBAI,
 } = process.env;
@@ -20,10 +20,10 @@ async function main() {
   // $LINK Address
   const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
 
-  // Overswap ContractMumbai
+  // Swaplace ContractMumbai
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
 

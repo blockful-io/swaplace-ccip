@@ -7,19 +7,19 @@ import {
 } from "../utils";
 
 async function deploy(signer: any, router: string, link: string) {
-  const Factory = await ethers.getContractFactory("Overswap", signer);
+  const Factory = await ethers.getContractFactory("Swaplace", signer);
   const Contract = await Factory.deploy(router, link, {
     gasLimit: 5000000,
     maxPriorityFeePerGas: 2001002003,
     maxFeePerGas: 2010002003,
   });
   console.log(
-    "\nContract Overswap \nDeployed to %s \nAt Tx %s\n",
+    "\nContract Swaplace \nDeployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
   await Contract.deployed();
-  saveContractAddress("OVERSWAP_SEPOLIA", Contract.address);
+  saveContractAddress("SWAPLACE_SEPOLIA", Contract.address);
   return Contract;
 }
 
