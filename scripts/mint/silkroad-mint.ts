@@ -1,11 +1,8 @@
-import { ethers } from "hardhat";
 import { abi } from "../../artifacts/contracts/MockERC721.sol/MockERC721.json";
+import { ethers } from "hardhat";
 import { getMockData } from "../utils";
 
-async function mint(receiver?: any, tokenId?: any) {
-  // Prepare Signers
-  const [signer] = await ethers.getSigners();
-
+async function mint(receiver?: any, tokenId?: any, signer?: any) {
   // Get contract address from .env
   const mock = await getMockData();
 
@@ -18,10 +15,19 @@ async function mint(receiver?: any, tokenId?: any) {
     tokenId ? tokenId : 1
   );
   await tx.wait();
+
+  console.log(
+    "Minted 1 NFTs of ID %s to %s in chain %s",
+    tokenId ? tokenId : 1,
+    receiver ? receiver : signer.address,
+    mock.chainId
+  );
   return tx;
 }
 
-mint().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+ethers.getSigners().then((signers) => {
+  mint(signers[0].address, 1, signers[0]).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 });

@@ -1,12 +1,12 @@
 import { ethers } from "hardhat";
 import { getChainData, saveContractAddress } from "../utils";
 
-async function deploySwaplace(signers: any) {
-  // Get contract address from .env
+async function deploySwaplace(signer: any) {
+  // Get .env and hardcoded data
   const mock = await getChainData();
 
   // Deploy contract and save address to .env
-  const Factory = await ethers.getContractFactory("Swaplace", signers[0]);
+  const Factory = await ethers.getContractFactory("Swaplace", signer);
   const Contract = await Factory.deploy(mock.routerAddress, mock.linkAddress, {
     gasLimit: 5000000,
     maxPriorityFeePerGas: 2001002003,
@@ -25,7 +25,7 @@ async function deploySwaplace(signers: any) {
 }
 
 ethers.getSigners().then((signers) => {
-  deploySwaplace(signers).catch((error) => {
+  deploySwaplace(signers[0]).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });
