@@ -2,10 +2,10 @@
 pragma solidity 0.8.19;
 
 import {CCIP} from "./CCIP.sol";
-import {IOverswap} from "./interfaces/IOverswap.sol";
+import {ISwaplace} from "./interfaces/ISwaplace.sol";
 import {ITransfer} from "./interfaces/ITransfer.sol";
 
-contract Overswap is CCIP, IOverswap {
+contract Swaplace is CCIP, ISwaplace {
   uint256 private _totalSwaps;
 
   mapping(uint256 => Swap) private _swaps;
