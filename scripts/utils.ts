@@ -31,40 +31,60 @@ export const base_goerli_link = "0xd886e2286fd1073df82462ea1822119600af80b6";
 export const op_goerli_link = "0xdc2CC710e42857672E7907CF474a69B63B93089f";
 
 export async function getMockData() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
+  const _chainId = (await ethers.provider.getNetwork()).chainId;
 
   let mock = {
     address: "",
     envName: "",
+    chainId: 0,
   };
 
-  if (chainId == 11155111) {
-    mock.address = process.env.ERC721_SEPOLIA as string;
-    mock.envName = "ERC721_SEPOLIA";
-  } else if (chainId == 80001) {
-    mock.address = process.env.ERC721_MUMBAI as string;
-    mock.envName = "ERC721_MUMBAI";
-  } else if (chainId == 97) {
-    mock.address = process.env.ERC721_BNB as string;
-    mock.envName = "ERC721_BNB";
-  } else if (chainId == 43113) {
-    mock.address = process.env.ERC721_FUJI as string;
-    mock.envName = "ERC721_FUJI";
-  } else if (chainId == 84531) {
-    mock.address = process.env.ERC721_BASE_GOERLI as string;
-    mock.envName = "ERC721_BASE_GOERLI";
-  } else if (chainId == 420) {
-    mock.address = process.env.ERC721_OP_GOERLI as string;
-    mock.envName = "ERC721_OP_GOERLI";
-  } else {
-    throw new Error("Invalid chain ID fo CCIP");
+  switch (_chainId) {
+    case 11155111:
+      mock.address = process.env.ERC721_SEPOLIA as string;
+      mock.envName = "ERC721_SEPOLIA";
+      mock.chainId = _chainId;
+      break;
+
+    case 80001:
+      mock.address = process.env.ERC721_MUMBAI as string;
+      mock.envName = "ERC721_MUMBAI";
+      mock.chainId = _chainId;
+      break;
+
+    case 97:
+      mock.address = process.env.ERC721_BNB as string;
+      mock.envName = "ERC721_BNB";
+      mock.chainId = _chainId;
+      break;
+
+    case 43113:
+      mock.address = process.env.ERC721_FUJI as string;
+      mock.envName = "ERC721_FUJI";
+      mock.chainId = _chainId;
+      break;
+
+    case 84531:
+      mock.address = process.env.ERC721_BASE_GOERLI as string;
+      mock.envName = "ERC721_BASE_GOERLI";
+      mock.chainId = _chainId;
+      break;
+
+    case 420:
+      mock.address = process.env.ERC721_OP_GOERLI as string;
+      mock.envName = "ERC721_OP_GOERLI";
+      mock.chainId = _chainId;
+      break;
+
+    default:
+      throw new Error("Invalid chain ID fo CCIP");
   }
 
   return mock;
 }
 
 export async function getChainData() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
+  const _chainId = (await ethers.provider.getNetwork()).chainId;
 
   let data = {
     address: "",
@@ -72,15 +92,17 @@ export async function getChainData() {
     chainSelector: "",
     routerAddress: "",
     linkAddress: "",
+    chainId: 0,
   };
 
-  switch (chainId) {
+  switch (_chainId) {
     case 11155111:
       data.address = process.env.SWAPLACE_SEPOLIA as string;
       data.envName = "SWAPLACE_SEPOLIA";
       data.chainSelector = sepolia_chain_selector;
       data.routerAddress = sepolia_router;
       data.linkAddress = sepolia_link;
+      data.chainId = _chainId;
       break;
 
     case 80001:
@@ -89,6 +111,7 @@ export async function getChainData() {
       data.chainSelector = mumbai_chain_selector;
       data.routerAddress = mumbai_router;
       data.linkAddress = mumbai_link;
+      data.chainId = _chainId;
       break;
 
     case 97:
@@ -97,6 +120,7 @@ export async function getChainData() {
       data.chainSelector = bnb_chain_selector;
       data.routerAddress = bnb_router;
       data.linkAddress = bnb_link;
+      data.chainId = _chainId;
       break;
 
     case 43113:
@@ -105,6 +129,7 @@ export async function getChainData() {
       data.chainSelector = fuji_chain_selector;
       data.routerAddress = fuji_router;
       data.linkAddress = fuji_link;
+      data.chainId = _chainId;
       break;
 
     case 84531:
@@ -113,6 +138,7 @@ export async function getChainData() {
       data.chainSelector = base_goerli_chain_selector;
       data.routerAddress = base_goerli_router;
       data.linkAddress = base_goerli_link;
+      data.chainId = _chainId;
       break;
 
     case 420:
@@ -121,6 +147,7 @@ export async function getChainData() {
       data.chainSelector = op_goerli_chain_selector;
       data.routerAddress = op_goerli_router;
       data.linkAddress = op_goerli_link;
+      data.chainId = _chainId;
       break;
 
     default:
