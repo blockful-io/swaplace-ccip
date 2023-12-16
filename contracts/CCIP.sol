@@ -66,44 +66,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
     return messageId;
   }
 
-  function _sendMessagePayNative(
-    uint64 _destinationChainSelector,
-    address _receiver,
-    bytes memory _data,
-    uint256 _value
-  ) internal returns (bytes32) {
-    Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
-      _receiver,
-      _data,
-      address(0)
-    );
-
-    uint256 fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
-
-    if (fees > _value) {
-      revert NotEnoughBalance(_value, fees);
-    }
-
-    bytes32 messageId = _router.ccipSend{value: fees}(
-      _destinationChainSelector,
-      evm2AnyMessage
-    );
-
-    if (_value > fees) {
-      payable(msg.sender).transfer(_value - fees);
-    }
-
-    emit MessageSent(
-      messageId,
-      _destinationChainSelector,
-      _receiver,
-      address(0),
-      fees
-    );
-
-    return messageId;
-  }
-
   function _buildCCIPMessage(
     address _receiver,
     bytes memory _data,
@@ -124,43 +86,48 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
   function _ccipReceive(
     Client.Any2EVMMessage memory any2EvmMessage
   ) internal override {
-    if (
-      abi.decode(any2EvmMessage.sender, (address)) !=
-      _allowlistedSenders[any2EvmMessage.sourceChainSelector]
-    ) revert SenderNotAllowlisted(abi.decode(any2EvmMessage.sender, (address)));
+    address sender = abi.decode(any2EvmMessage.sender, (address));
 
-    lastReceivedMessageId = any2EvmMessage.messageId; // fetch the messageId
+    if (sender != _allowlistedSenders[any2EvmMessage.sourceChainSelector])
+      revert SenderNotAllowlisted(sender);
 
-    Swap memory swap = abi.decode(any2EvmMessage.data, (Swap));
+    (Swap memory swap, uint256 stage) = abi.decode(
+      any2EvmMessage.data,
+      (Swap, uint256)
+    );
 
-    (
-      address allowed,
-      uint64 destinationChainSelector,
-      uint32 expiration
-    ) = parseData(swap.config);
+    (address allowed, , ) = parseData(swap.config);
 
-    _transferFrom(allowed, address(this), swap.biding);
+    if (stage == 1) {
+      // Get asking assets from allowed
+      _transferFrom(allowed, address(this), swap.asking);
+
+      _sendMessagePayLINK(
+        any2EvmMessage.sourceChainSelector,
+        sender,
+        abi.encode(swap, 2)
+      );
+    } else if (stage == 2) {
+      // Send biding assets to allowed
+      // TODO: will need a try catch here to make sure it is approved, otherwise return the funds
+      _transferFrom(address(this), allowed, swap.biding);
+
+      _sendMessagePayLINK(
+        any2EvmMessage.sourceChainSelector,
+        sender,
+        abi.encode(swap, 3)
+      );
+    } else if (stage == 3) {
+      // Send asking assets to owner
+      _transferFrom(address(this), swap.owner, swap.asking);
+    }
 
     emit MessageReceived(
       any2EvmMessage.messageId,
       any2EvmMessage.sourceChainSelector,
-      address(this)
+      address(this),
+      stage
     );
-  }
-
-  function _simulateFees(
-    uint64 _destinationChainSelector,
-    address _receiver,
-    bytes memory _data,
-    bool _native
-  ) internal view returns (uint256 fees) {
-    Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
-      _receiver,
-      _data,
-      _native ? address(0) : address(_linkToken)
-    );
-
-    fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
   }
 
   function _transferFrom(
@@ -176,11 +143,24 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
     }
   }
 
+  function simulateFees(
+    Swap calldata swap,
+    uint64 destinationChainSelector
+  ) public view returns (uint256 fees) {
+    Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
+      allowlistSenders(destinationChainSelector),
+      abi.encode(swap, 1),
+      address(_linkToken)
+    );
+
+    fees = _router.getFee(destinationChainSelector, evm2AnyMessage);
+  }
+
   function packData(
     address allowed,
     uint64 destinationChainSelector,
     uint32 expiration
-  ) public pure virtual returns (uint256) {
+  ) public pure returns (uint256) {
     return
       uint160(allowed) |
       (uint256(destinationChainSelector) << 160) |
@@ -189,7 +169,7 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
 
   function parseData(
     uint256 validationData
-  ) public pure virtual returns (address, uint64, uint32) {
+  ) public pure returns (address, uint64, uint32) {
     return (
       address(uint160(validationData)),
       uint64(validationData >> 160),

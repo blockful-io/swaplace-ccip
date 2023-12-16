@@ -32,12 +32,7 @@ interface ISwaplace {
   );
 
   /**
-   * @dev Emitted when a Swap is accepted.
+   * @dev Emitted when a Swap fails.
    */
-  event SwapAccepted(uint256 indexed swapId, address indexed acceptee);
-
-  /**
-   * @dev Emitted when a Swap content is withdrawn.
-   */
-  event Withdraw(bytes32 indexed proof, address indexed acceptee);
+  event SwapCanceled(uint256 indexed swapId, address indexed owner);
 }

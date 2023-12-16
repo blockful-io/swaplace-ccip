@@ -20,6 +20,7 @@ interface ICCIP {
   event MessageReceived(
     bytes32 indexed messageId,
     uint64 indexed sourceChainSelector,
-    address sender
+    address sender,
+    uint256 stage
   );
 }

@@ -9,9 +9,11 @@ contract Swaplace is CCIP, ISwaplace {
 
   mapping(uint256 => Swap) private _swaps;
 
+  mapping(uint256 => uint256) private _refunds;
+
   constructor(address _router, address _link) CCIP(_router, _link) {}
 
-  function createSwap(Swap calldata swap) external payable returns (uint256) {
+  function executeSwap(Swap calldata swap) external payable returns (uint256) {
     (, uint64 destinationChainSelector, uint32 expiration) = parseData(
       swap.config
     );
@@ -23,22 +25,13 @@ contract Swaplace is CCIP, ISwaplace {
     if (swap.biding.length == 0 || swap.asking.length == 0)
       revert InvalidAssetsLength();
 
-    bytes memory data = abi.encode(swap);
+    bytes memory data = abi.encode(swap, 1);
 
-    if (msg.value > 0) {
-      _sendMessagePayNative(
-        destinationChainSelector,
-        allowlistSenders(destinationChainSelector),
-        data,
-        msg.value
-      );
-    } else {
-      _sendMessagePayLINK(
-        destinationChainSelector,
-        allowlistSenders(destinationChainSelector),
-        data
-      );
-    }
+    _sendMessagePayLINK(
+      destinationChainSelector,
+      allowlistSenders(destinationChainSelector),
+      data
+    );
 
     _transferFrom(msg.sender, address(this), swap.biding);
 
@@ -50,23 +43,23 @@ contract Swaplace is CCIP, ISwaplace {
 
     uint256 swapId = _totalSwaps;
     _swaps[swapId] = swap;
+    _refunds[swapId] = block.timestamp + 1 days; // Enough time for the funds to be executed by CCIP
 
     emit SwapCreated(swapId, msg.sender, expiration);
 
     return swapId;
   }
 
-  function simulateFees(
-    Swap calldata swap,
-    uint64 destinationChainSelector,
-    bool native
-  ) public view returns (uint256 fees) {
-    fees = _simulateFees(
-      destinationChainSelector,
-      allowlistSenders(destinationChainSelector),
-      abi.encode(swap),
-      native
-    );
+  function cancelSwap(uint256 swapId) external {
+    Swap memory swap = _swaps[swapId];
+
+    if (swap.owner != msg.sender) revert InvalidAddress(msg.sender);
+
+    if (_refunds[swapId] > block.timestamp) revert InvalidExpiration(_refunds[swapId]);
+
+    _transferFrom(address(this), msg.sender, swap.biding);
+
+    emit SwapCanceled(swapId, msg.sender);
   }
 
   function totalSwaps() public view returns (uint256) {
