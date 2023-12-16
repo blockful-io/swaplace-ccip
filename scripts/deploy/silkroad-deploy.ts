@@ -3,17 +3,21 @@ import { getChainData, saveContractAddress } from "../utils";
 
 async function deploySwaplace(signer: any) {
   // Get .env and hardcoded data
-  const mock = await getChainData();
+  const chainData = await getChainData();
 
   // Deploy contract and save address to .env
   const Factory = await ethers.getContractFactory("Swaplace", signer);
-  const Contract = await Factory.deploy(mock.routerAddress, mock.linkAddress, {
-    gasLimit: 5000000,
-    maxPriorityFeePerGas: 2001002003,
-    maxFeePerGas: 2010002003,
-  });
+  const Contract = await Factory.deploy(
+    chainData.routerAddress,
+    chainData.linkAddress,
+    {
+      gasLimit: 5000000,
+      maxPriorityFeePerGas: 2001002003,
+      maxFeePerGas: 2010002003,
+    }
+  );
   await Contract.deployed();
-  saveContractAddress(mock.envName, Contract.address);
+  saveContractAddress(chainData.envName, Contract.address);
 
   console.log(
     "\nContract Swaplace \nDeployed to %s \nAt Tx %s",
