@@ -13,7 +13,6 @@ interface ICCIP {
     bytes32 indexed messageId,
     uint64 indexed destinationChainSelector,
     address receiver,
-    bytes32 _proof,
     address feeToken,
     uint256 fees
   );
@@ -21,7 +20,6 @@ interface ICCIP {
   event MessageReceived(
     bytes32 indexed messageId,
     uint64 indexed sourceChainSelector,
-    address sender,
-    bytes32 proof
+    address sender
   );
 }

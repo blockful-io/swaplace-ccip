@@ -3,39 +3,6 @@ pragma solidity 0.8.19;
 
 interface ISwaplace {
   /**
-   * @dev Assets can be ERC20 or ERC721.
-   *
-   * It is composed of:
-   * - `addr` of the asset.
-   * - `amountOrId` of the asset based on the standard.
-   *
-   * NOTE: `amountOrId` is the `amount` of ERC20 or the `tokenId` of ERC721.
-   */
-  struct Asset {
-    address addr;
-    uint256 amountOrId;
-  }
-
-  /**
-   * @dev The Swap struct is the heart of a Swap.
-   *
-   * It is composed of:
-   * - `owner` of the Swap.
-   * - `allowed` address to accept the Swap.
-   * - `expiry` date of the Swap.
-   * - `biding` assets that are being bided by the owner.
-   * - `asking` assets that are being asked by the owner.
-   *
-   * NOTE: When `allowed` address is the zero address, anyone can accept the Swap.
-   */
-  struct Swap {
-    address owner;
-    uint256 config;
-    Asset[] biding;
-    Asset[] asking;
-  }
-
-  /**
    * @dev Displayed when the caller is not the owner of the swap.
    */
   error InvalidAddress(address caller);
@@ -60,7 +27,6 @@ interface ISwaplace {
    */
   event SwapCreated(
     uint256 indexed swapId,
-    bytes32 indexed proof,
     address indexed owner,
     uint256 expiration
   );
@@ -68,11 +34,7 @@ interface ISwaplace {
   /**
    * @dev Emitted when a Swap is accepted.
    */
-  event SwapAccepted(
-    uint256 indexed swapId,
-    bytes32 indexed proof,
-    address indexed acceptee
-  );
+  event SwapAccepted(uint256 indexed swapId, address indexed acceptee);
 
   /**
    * @dev Emitted when a Swap content is withdrawn.
