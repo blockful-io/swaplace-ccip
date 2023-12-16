@@ -2,26 +2,24 @@ import { abi } from "../../artifacts/contracts/MockERC721.sol/MockERC721.json";
 import { ethers } from "hardhat";
 import { getMockData } from "../utils";
 
-async function mint(receiver?: any, tokenId?: any, signer?: any) {
+async function mint(receiver: any, tokenId: any, signer: any) {
   // Get contract address from .env
   const mock = await getMockData();
 
   // Create contract instance
-  const ContractMock = new ethers.Contract(mock.address, abi, signer);
+  const Contract = new ethers.Contract(mock.address, abi, signer);
 
-  // Mint to user
-  const tx = await ContractMock.mintTo(
-    receiver ? receiver : signer.address,
-    tokenId ? tokenId : 1
-  );
+  // Mint to receiver
+  const tx = await Contract.mintTo(receiver, tokenId);
   await tx.wait();
 
   console.log(
-    "Minted 1 NFTs of ID %s to %s in chain %s",
-    tokenId ? tokenId : 1,
-    receiver ? receiver : signer.address,
+    "Minted 1 NFT of ID %s to %s in chain %s",
+    tokenId,
+    receiver,
     mock.chainId
   );
+
   return tx;
 }
 
