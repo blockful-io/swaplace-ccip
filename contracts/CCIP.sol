@@ -11,40 +11,15 @@ import {ICCIP} from "./interfaces/ICCIP.sol";
 abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
   bytes32 public lastReceivedMessageId;
 
-  mapping(bytes32 => uint16) private _unlockSteps;
-
   IERC20 private _linkToken;
+  IRouterClient private _router;
 
-  mapping(uint64 => bool) private _allowlistedDestinationChains;
-
-  mapping(uint64 => bool) private _allowlistedSourceChains;
-
+  mapping(bytes32 => uint16) private _unlockSteps;
   mapping(uint64 => address) private _allowlistedSenders;
 
-  constructor(address _router, address _link) CCIPReceiver(_router) {
+  constructor(address _router_, address _link) CCIPReceiver(_router_) {
     _linkToken = IERC20(_link);
-  }
-
-  modifier onlyAllowlisted(uint64 _sourceChainSelector, address _sender) {
-    if (!_allowlistedSourceChains[_sourceChainSelector])
-      revert SourceChainNotAllowlisted(_sourceChainSelector);
-    if (_sender != _allowlistedSenders[_sourceChainSelector])
-      revert SenderNotAllowlisted(_sender);
-    _;
-  }
-
-  function allowlistDestinationChain(
-    uint64 _destinationChainSelector,
-    bool _allowed
-  ) external onlyOwner {
-    _allowlistedDestinationChains[_destinationChainSelector] = _allowed;
-  }
-
-  function allowlistSourceChain(
-    uint64 _sourceChainSelector,
-    bool _allowed
-  ) external onlyOwner {
-    _allowlistedSourceChains[_sourceChainSelector] = _allowed;
+    _router = IRouterClient(_router_);
   }
 
   function allowlistSender(
@@ -59,28 +34,22 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
     address _receiver,
     bytes32 _proof
   ) internal returns (bytes32) {
-    if (!_allowlistedDestinationChains[_destinationChainSelector]) {
-      revert DestinationChainNotAllowlisted(_destinationChainSelector);
-    }
-
     Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
       _receiver,
       _proof,
       address(_linkToken)
     );
 
-    IRouterClient router = IRouterClient(this.getRouter());
-
-    uint256 fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
+    uint256 fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
 
     _linkToken.transferFrom(msg.sender, address(this), fees);
 
     if (fees > _linkToken.balanceOf(address(this)))
       revert NotEnoughBalance(_linkToken.balanceOf(address(this)), fees);
 
-    _linkToken.approve(address(router), fees);
+    _linkToken.approve(address(_router), fees);
 
-    bytes32 messageId = router.ccipSend(
+    bytes32 messageId = _router.ccipSend(
       _destinationChainSelector,
       evm2AnyMessage
     );
@@ -100,34 +69,28 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
   function _sendMessagePayNative(
     uint64 _destinationChainSelector,
     address _receiver,
-    uint256 value,
-    bytes32 _proof
+    bytes32 _proof,
+    uint256 _value
   ) internal returns (bytes32) {
-    if (!_allowlistedDestinationChains[_destinationChainSelector]) {
-      revert DestinationChainNotAllowlisted(_destinationChainSelector);
-    }
-
     Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
       _receiver,
       _proof,
       address(0)
     );
 
-    IRouterClient router = IRouterClient(this.getRouter());
+    uint256 fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
 
-    uint256 fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
-
-    if (fees > value) {
-      revert NotEnoughBalance(value, fees);
+    if (fees > _value) {
+      revert NotEnoughBalance(_value, fees);
     }
 
-    bytes32 messageId = router.ccipSend{value: fees}(
+    bytes32 messageId = _router.ccipSend{value: fees}(
       _destinationChainSelector,
       evm2AnyMessage
     );
 
-    if (value > fees) {
-      payable(msg.sender).transfer(value - fees);
+    if (_value > fees) {
+      payable(msg.sender).transfer(_value - fees);
     }
 
     emit MessageSent(
@@ -161,14 +124,12 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
 
   function _ccipReceive(
     Client.Any2EVMMessage memory any2EvmMessage
-  )
-    internal
-    override
-    onlyAllowlisted(
-      any2EvmMessage.sourceChainSelector,
-      abi.decode(any2EvmMessage.sender, (address))
-    )
-  {
+  ) internal override {
+    if (
+      abi.decode(any2EvmMessage.sender, (address)) !=
+      _allowlistedSenders[any2EvmMessage.sourceChainSelector]
+    ) revert SenderNotAllowlisted(abi.decode(any2EvmMessage.sender, (address)));
+
     lastReceivedMessageId = any2EvmMessage.messageId; // fetch the messageId
 
     bytes32 proof = abi.decode(any2EvmMessage.data, (bytes32));
@@ -197,9 +158,7 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
       address(_linkToken)
     );
 
-    IRouterClient router = IRouterClient(this.getRouter());
-
-    fees = router.getFee(_destinationChainSelector, evm2AnyMessage);
+    fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
   }
 
   function getLinkToken() public view returns (IERC20) {
@@ -208,18 +167,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP {
 
   function getUnlockSteps(bytes32 proof) public view returns (uint16 steps) {
     return _unlockSteps[proof];
-  }
-
-  function allowedDestinationChains(
-    uint64 _destinationChainSelector
-  ) public view returns (bool) {
-    return _allowlistedDestinationChains[_destinationChainSelector];
-  }
-
-  function allowedSourceChains(
-    uint64 _sourceChainSelector
-  ) public view returns (bool) {
-    return _allowlistedSourceChains[_sourceChainSelector];
   }
 
   function allowlistSenders(

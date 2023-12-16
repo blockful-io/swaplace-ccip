@@ -35,8 +35,8 @@ contract Swaplace is CCIP, ISwaplace {
       _sendMessagePayNative(
         destinationChainSelector,
         allowlistSenders(destinationChainSelector),
-        msg.value,
-        proof
+        proof,
+        msg.value
       );
     } else {
       _sendMessagePayLINK(
@@ -83,8 +83,8 @@ contract Swaplace is CCIP, ISwaplace {
       _sendMessagePayNative(
         destinationChainSelector,
         allowlistSenders(destinationChainSelector),
-        msg.value,
-        proof
+        proof,
+        msg.value
       );
     } else {
       _sendMessagePayLINK(
