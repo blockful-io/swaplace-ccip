@@ -22,10 +22,3 @@ async function mint(receiver: any, tokenId: any, signer: any) {
 
   return tx;
 }
-
-ethers.getSigners().then((signers) => {
-  mint(signers[0].address, 1, signers[0]).catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
-});
