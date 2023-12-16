@@ -1,15 +1,9 @@
 import { ethers } from "hardhat";
-import { getMockFromEnv, saveContractAddress } from "../utils";
+import { getMockData, saveContractAddress } from "../utils";
 
 async function deployMock(signers: any) {
   // Get contract address from .env
-  const mock = await getMockFromEnv();
-
-  // If contract address is already set, do nothing
-  if (mock.address.length > 0) {
-    console.log("Mock ERC721 already deployed at %s", mock.address);
-    return mock.address;
-  }
+  const mock = await getMockData();
 
   // Deploy contract and save address to .env
   const Factory = await ethers.getContractFactory("MockERC721", signers[0]);
