@@ -78,6 +78,15 @@ export async function makeSwap(
     asking: asking,
   };
 
+  console.log(
+    "Composed a swap with: \n owner: %s \n allowed: %s \n expiration: %s \n biding: %s \n asking: %s\n",
+    owner,
+    allowed,
+    expiration,
+    biding.length,
+    asking.length
+  );
+
   return swap;
 }
 
@@ -109,14 +118,6 @@ export async function composeSwap(
     asking.push(await makeAsset(addr, askingAmountOrId[index]));
   });
 
-  console.log(
-    "Composed a swap with: \n owner: %s \n allowed: %s \n expiration: %s \n biding: %s \n asking: %s\n",
-    owner,
-    allowed,
-    expiration,
-    biding.length,
-    asking.length
-  );
   return await makeSwap(
     Contract,
     owner,
