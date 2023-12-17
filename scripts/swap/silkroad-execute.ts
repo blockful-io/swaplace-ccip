@@ -11,6 +11,9 @@ export async function execute(destinationChain: any) {
   // Get contract address from .env
   const mockSource = await getMockData();
 
+  // Get chain data
+  const chainData = await getSwaplaceData();
+
   // Get contract address from .env
   const mockDestination = await getMockData(destinationChain);
 
@@ -24,14 +27,32 @@ export async function execute(destinationChain: any) {
   );
 
   // Approve ERC source chain
-  await approveMock(signer.address, tokenIdSource, mockSource.chainSelector);
+  await approveMock(
+    mockSource.address,
+    tokenIdSource,
+    mockSource.chainSelector
+  );
 
   // Approve ERC destination chain
-  await approveMock(signer.address, tokenIdDestination, destinationChain);
+  await approveMock(
+    mockDestination.address,
+    tokenIdDestination,
+    destinationChain
+  );
 
-  // Get chain data
-  const chainData = await getSwaplaceData();
+  // Approve LINK source chain
+  await approveLINK(
+    mockSource.address,
+    ethers.constants.MaxUint256,
+    mockSource.chainSelector
+  );
 
+  // Approve LINK destination chain
+  await approveLINK(
+    mockDestination.address,
+    ethers.constants.MaxUint256,
+    destinationChain
+  );
   // Swaplace contract
   const Contract = await ethers.getContractAt(
     "Swaplace",
@@ -58,20 +79,6 @@ export async function execute(destinationChain: any) {
     askingAmountOrId // asking amount or id
   );
 
-  // Approve LINK source chain
-  await approveLINK(
-    signer.address,
-    ethers.constants.MaxUint256,
-    mockSource.chainSelector
-  );
-
-  // Approve LINK destination chain
-  await approveLINK(
-    signer.address,
-    ethers.constants.MaxUint256,
-    destinationChain
-  );
-
   // Execute Swap
   var tx = await Contract.executeSwap(swap, {
     gasLimit: 3000000,
@@ -85,3 +92,6 @@ export async function execute(destinationChain: any) {
     receipt.transactionHash
   );
 }
+
+const bnb_chain_selector = "13264668187771770619";
+execute(bnb_chain_selector);
