@@ -64,7 +64,7 @@ export async function getMockData(chainSelector?: any) {
 
     case 97:
     case bnb_chain_selector:
-      data.rpcUrl = process.env.BNB_RPC_URL as string;
+      data.rpcUrl = process.env.BNB_TESTNET_RPC_URL as string;
       data.address = process.env.ERC721_BNB as string;
       data.envName = "ERC721_BNB";
       data.chainId = _chainId;
