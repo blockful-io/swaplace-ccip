@@ -16,7 +16,7 @@ async function deployMock(signers: any) {
   saveContractAddress(mock.envName, Contract.address);
 
   console.log(
-    "\nContract Mock ERC721 \nDeployed to %s \nAt Tx %s",
+    "Contract Mock ERC721 Deployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
