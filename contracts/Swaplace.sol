@@ -8,7 +8,6 @@ contract Swaplace is CCIP, ISwaplace {
   uint256 private _totalSwaps;
 
   mapping(uint256 => Swap) private _swaps;
-
   mapping(uint256 => uint256) private _refunds;
 
   constructor(address _router, address _link) CCIP(_router, _link) {}
@@ -30,6 +29,7 @@ contract Swaplace is CCIP, ISwaplace {
     _sendMessagePayLINK(
       destinationChainSelector,
       allowlistSenders(destinationChainSelector),
+      msg.sender,
       data
     );
 
@@ -43,7 +43,11 @@ contract Swaplace is CCIP, ISwaplace {
 
     uint256 swapId = _totalSwaps;
     _swaps[swapId] = swap;
-    _refunds[swapId] = block.timestamp + 1 days; // Enough time for the funds to be executed by CCIP
+
+    // Enough time for the funds to be executed by CCIP
+    unchecked {
+      _refunds[swapId] = block.timestamp + 1 days;
+    }
 
     emit SwapCreated(swapId, msg.sender, expiration);
 
@@ -55,9 +59,11 @@ contract Swaplace is CCIP, ISwaplace {
 
     if (swap.owner != msg.sender) revert InvalidAddress(msg.sender);
 
-    if (_refunds[swapId] > block.timestamp) revert InvalidExpiration(_refunds[swapId]);
+    if (_refunds[swapId] > block.timestamp)
+      revert InvalidExpiration(_refunds[swapId]);
 
     _transferFrom(address(this), msg.sender, swap.biding);
+    _withdrawLink(msg.sender);
 
     emit SwapCanceled(swapId, msg.sender);
   }
@@ -68,9 +74,5 @@ contract Swaplace is CCIP, ISwaplace {
 
   function getSwap(uint256 swapId) public view returns (Swap memory) {
     return _swaps[swapId];
-  }
-
-  function redeem() public payable onlyOwner {
-    payable(address(msg.sender)).transfer(address(this).balance);
   }
 }

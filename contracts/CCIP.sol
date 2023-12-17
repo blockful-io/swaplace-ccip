@@ -11,28 +11,31 @@ import {ISwap} from "./interfaces/ISwap.sol";
 import {ITransfer} from "./interfaces/ITransfer.sol";
 
 abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
-  bytes32 public lastReceivedMessageId;
-
   IERC20 private _linkToken;
   IRouterClient private _router;
 
   mapping(uint64 => address) private _allowlistedSenders;
+  mapping(address => uint256) private _linkBalance;
 
   constructor(address _router_, address _link) CCIPReceiver(_router_) {
     _linkToken = IERC20(_link);
     _router = IRouterClient(_router_);
   }
 
-  function allowlistSender(
-    uint64 _sourceChainSelector,
-    address _sender
-  ) external onlyOwner {
-    _allowlistedSenders[_sourceChainSelector] = _sender;
+  function getLinkToken() public view returns (IERC20) {
+    return _linkToken;
+  }
+
+  function allowlistSenders(
+    uint64 _sourceChainSelector
+  ) public view returns (address) {
+    return _allowlistedSenders[_sourceChainSelector];
   }
 
   function _sendMessagePayLINK(
     uint64 _destinationChainSelector,
     address _receiver,
+    address _feePayer,
     bytes memory _data
   ) internal returns (bytes32) {
     Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(
@@ -41,14 +44,11 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       address(_linkToken)
     );
 
-    uint256 fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
-
-    _linkToken.transferFrom(msg.sender, address(this), fees);
-
-    if (fees > _linkToken.balanceOf(address(this)))
-      revert NotEnoughBalance(_linkToken.balanceOf(address(this)), fees);
-
-    _linkToken.approve(address(_router), fees);
+    uint256 fees = _payFeesCCIP(
+      _destinationChainSelector,
+      _feePayer,
+      evm2AnyMessage
+    );
 
     bytes32 messageId = _router.ccipSend(
       _destinationChainSelector,
@@ -83,6 +83,23 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       });
   }
 
+  function _payFeesCCIP(
+    uint64 _destinationChainSelector,
+    address _feePayer,
+    Client.EVM2AnyMessage memory evm2AnyMessage
+  ) internal returns (uint256 fees) {
+    fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
+
+    uint256 balance = _linkBalance[_feePayer];
+    // 3 times the fees to guarantee success
+    unchecked {
+      if (balance == 0) _depositLink(_feePayer, fees * 3);
+    }
+
+    _linkBalance[_feePayer] -= fees;
+    _linkToken.approve(address(_router), fees);
+  }
+
   function _ccipReceive(
     Client.Any2EVMMessage memory any2EvmMessage
   ) internal override {
@@ -99,27 +116,34 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
     (address allowed, , ) = parseData(swap.config);
 
     if (stage == 1) {
-      // Get asking assets from allowed
+      // Get asking assets from allowed and send to contract
       _transferFrom(allowed, address(this), swap.asking);
 
       _sendMessagePayLINK(
         any2EvmMessage.sourceChainSelector,
         sender,
+        allowed, // pays for fees
         abi.encode(swap, 2)
       );
     } else if (stage == 2) {
-      // Send biding assets to allowed
-      // TODO: will need a try catch here to make sure it is approved, otherwise return the funds
+      // Send biding assets from contract to allowed
       _transferFrom(address(this), allowed, swap.biding);
 
       _sendMessagePayLINK(
         any2EvmMessage.sourceChainSelector,
         sender,
+        swap.owner, // TODO: fee token should be locked during swap
         abi.encode(swap, 3)
       );
+
+      // Extra $LINK as fee for the protocol
+      _withdrawLink(swap.owner);
     } else if (stage == 3) {
       // Send asking assets to owner
       _transferFrom(address(this), swap.owner, swap.asking);
+
+      // Extra $LINK as fee for the protocol
+      _withdrawLink(allowed);
     }
 
     emit MessageReceived(
@@ -141,6 +165,38 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
         i++;
       }
     }
+  }
+
+  function _depositLink(address account, uint256 amount) internal {
+    _linkToken.transferFrom(account, address(this), amount);
+    unchecked {
+      _linkBalance[account] += amount;
+    }
+  }
+
+  function _withdrawLink(address account) internal {
+    uint256 amount = _linkBalance[account];
+    _linkBalance[account] = 0;
+    _linkToken.transferFrom(address(this), account, amount);
+  }
+
+  function _payFeesSwaplace(address account) internal {
+    uint256 amount = _linkBalance[account];
+    _linkBalance[account] = 0;
+    _linkBalance[address(this)] = amount;
+  }
+
+  function withdrawFeesSwaplace(address account) public onlyOwner {
+    uint256 amount = _linkBalance[address(this)];
+    _linkBalance[address(this)] = 0;
+    _linkToken.transferFrom(account, address(this), amount);
+  }
+
+  function setAllowlistSender(
+    uint64 _sourceChainSelector,
+    address _sender
+  ) external onlyOwner {
+    _allowlistedSenders[_sourceChainSelector] = _sender;
   }
 
   function simulateFees(
@@ -177,15 +233,8 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
     );
   }
 
-  function getLinkToken() public view returns (IERC20) {
-    return _linkToken;
+  function redeemERC(address tokenContract, address receiver) public onlyOwner {
+    uint256 balance = ITransfer(tokenContract).balanceOf(address(this));
+    IERC20(tokenContract).transfer(receiver, balance);
   }
-
-  function allowlistSenders(
-    uint64 _sourceChainSelector
-  ) public view returns (address) {
-    return _allowlistedSenders[_sourceChainSelector];
-  }
-
-  receive() external payable {}
 }
