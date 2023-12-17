@@ -32,10 +32,6 @@
     "mint": "npx hardhat run scripts/mint/silkroad-mint.ts",
     "deploy-mock": "npx hardhat run scripts/deploy/silkroad-mock.ts",
     "deploy-swaplace": "npx hardhat run scripts/deploy/silkroad-deploy.ts",
-    "allowlist": "npx hardhat run scripts/silkroad-allowlist.ts",
-    "create-swap": "npx hardhat run scripts/silkroad-create.ts",
-    "accept-swap": "npx hardhat run scripts/silkroad-accept.ts",
-    "status-check": "npx hardhat run scripts/silkroad-check.ts",
-    "redeem": "npx hardhat run scripts/silkroad-redeem.ts"
+    "execute": "npx hardhat run scripts/swap/silkroad-execute.ts"
   }
 }
