@@ -1,6 +1,6 @@
 import { abi } from "../artifacts/contracts/Swaplace.sol/Swaplace.json";
 import { ethers } from "hardhat";
-import { getChainData } from "./utils";
+import { getSwaplaceData } from "./utils";
 
 export async function contractConfiguration(
   signer: any,
@@ -8,13 +8,13 @@ export async function contractConfiguration(
   destinationContract: any
 ) {
   // Get contract address from .env
-  const chainData = await getChainData();
+  const chainData = await getSwaplaceData();
 
   // Get contract instance
   const Swaplace = new ethers.Contract(chainData.address, abi, signer);
 
   // Set the chain selector and contract that are allowed to interact with this Swaplace
-  var tx = await Swaplace.allowlistSender(
+  var tx = await Swaplace.setAllowlistSender(
     destinationChain,
     destinationContract,
     {
