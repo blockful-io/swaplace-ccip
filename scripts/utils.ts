@@ -145,7 +145,7 @@ export async function getSwaplaceData(chainSelector?: any) {
 
     case 97:
     case bnb_chain_selector:
-      data.rpcUrl = process.env.BNB_RPC_URL as string;
+      data.rpcUrl = process.env.BNB_TESTNET_RPC_URL as string;
       data.address = process.env.SWAPLACE_BNB as string;
       data.envName = "SWAPLACE_BNB";
       data.chainSelector = bnb_chain_selector;

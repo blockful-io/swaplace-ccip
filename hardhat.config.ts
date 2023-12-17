@@ -7,7 +7,7 @@ const {
   DEPLOYER_PRIVATE_KEY,
   SEPOLIA_RPC_URL,
   MUMBAI_RPC_URL,
-  BSC_TESTNET_RPC_URL,
+  BNB_TESTNET_RPC_URL,
   FUJI_RPC_URL,
   BASE_GOERLI_RPC_URL,
   OP_GOERLI_RPC_URL,
@@ -31,7 +31,7 @@ const config: HardhatUserConfig = {
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
     bnb: {
-      url: `${BSC_TESTNET_RPC_URL}`,
+      url: `${BNB_TESTNET_RPC_URL}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
     fuji: {
