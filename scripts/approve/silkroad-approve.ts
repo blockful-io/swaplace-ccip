@@ -25,7 +25,7 @@ export async function approveMock(
     "Approved NFT of ID %s to %s in chain %s\n",
     tokenId,
     spender,
-    mock.chainId
+    mock.envName
   );
   return tx;
 }
@@ -59,7 +59,7 @@ export async function approveLINK(
     "Approved %s tokens to %s in chain %s\n",
     ethers.utils.formatEther(amount),
     spender,
-    Swaplace.chainId
+    Swaplace.envName
   );
   return tx;
 }

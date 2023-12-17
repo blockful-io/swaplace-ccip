@@ -23,7 +23,7 @@ export async function mint(receiver: any, chainSelector: any) {
     "Minted 1 NFT of ID %s to %s in chain %s\n",
     lastTokenId,
     receiver,
-    mock.chainId
+    mock.envName
   );
 
   return lastTokenId;
