@@ -1,9 +1,9 @@
 import { ethers } from "hardhat";
-import { getChainData, saveContractAddress } from "../utils";
+import { getSwaplaceData, saveContractAddress } from "../utils";
 
 async function deploySwaplace(signer: any) {
   // Get .env and hardcoded data
-  const chainData = await getChainData();
+  const chainData = await getSwaplaceData();
 
   // Deploy contract and save address to .env
   const Factory = await ethers.getContractFactory("Swaplace", signer);
@@ -20,7 +20,7 @@ async function deploySwaplace(signer: any) {
   saveContractAddress(chainData.envName, Contract.address);
 
   console.log(
-    "\nContract Swaplace \nDeployed to %s \nAt Tx %s",
+    "Contract Swaplace Deployed to %s \nAt Tx %s\n",
     Contract.address,
     Contract.deployTransaction.hash
   );
