@@ -30,63 +30,88 @@ export const fuji_link = "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846";
 export const base_goerli_link = "0xd886e2286fd1073df82462ea1822119600af80b6";
 export const op_goerli_link = "0xdc2CC710e42857672E7907CF474a69B63B93089f";
 
-export async function getMockData() {
-  const _chainId = (await ethers.provider.getNetwork()).chainId;
+export async function getMockData(chainSelector?: any) {
+  const _chainId = chainSelector
+    ? chainSelector
+    : (await ethers.provider.getNetwork()).chainId;
 
-  let mock = {
+  let data = {
+    rpcUrl: "",
     address: "",
     envName: "",
     chainId: 0,
+    chainSelector: "",
   };
 
   switch (_chainId) {
     case 11155111:
-      mock.address = process.env.ERC721_SEPOLIA as string;
-      mock.envName = "ERC721_SEPOLIA";
-      mock.chainId = _chainId;
+    case sepolia_chain_selector:
+      data.rpcUrl = process.env.SEPOLIA_RPC_URL as string;
+      data.address = process.env.ERC721_SEPOLIA as string;
+      data.envName = "ERC721_SEPOLIA";
+      data.chainId = _chainId;
+      data.chainSelector = sepolia_chain_selector;
       break;
 
     case 80001:
-      mock.address = process.env.ERC721_MUMBAI as string;
-      mock.envName = "ERC721_MUMBAI";
-      mock.chainId = _chainId;
+    case mumbai_chain_selector:
+      data.rpcUrl = process.env.MUMBAI_RPC_URL as string;
+      data.address = process.env.ERC721_MUMBAI as string;
+      data.envName = "ERC721_MUMBAI";
+      data.chainId = _chainId;
+      data.chainSelector = mumbai_chain_selector;
       break;
 
     case 97:
-      mock.address = process.env.ERC721_BNB as string;
-      mock.envName = "ERC721_BNB";
-      mock.chainId = _chainId;
+    case bnb_chain_selector:
+      data.rpcUrl = process.env.BNB_RPC_URL as string;
+      data.address = process.env.ERC721_BNB as string;
+      data.envName = "ERC721_BNB";
+      data.chainId = _chainId;
+      data.chainSelector = bnb_chain_selector;
       break;
 
     case 43113:
-      mock.address = process.env.ERC721_FUJI as string;
-      mock.envName = "ERC721_FUJI";
-      mock.chainId = _chainId;
+    case fuji_chain_selector:
+      data.rpcUrl = process.env.FUJI_RPC_URL as string;
+      data.address = process.env.ERC721_FUJI as string;
+      data.envName = "ERC721_FUJI";
+      data.chainId = _chainId;
+      data.chainSelector = fuji_chain_selector;
       break;
 
     case 84531:
-      mock.address = process.env.ERC721_BASE_GOERLI as string;
-      mock.envName = "ERC721_BASE_GOERLI";
-      mock.chainId = _chainId;
+    case base_goerli_chain_selector:
+      data.rpcUrl = process.env.BASE_GOERLI_RPC_URL as string;
+      data.address = process.env.ERC721_BASE_GOERLI as string;
+      data.envName = "ERC721_BASE_GOERLI";
+      data.chainId = _chainId;
+      data.chainSelector = base_goerli_chain_selector;
       break;
 
     case 420:
-      mock.address = process.env.ERC721_OP_GOERLI as string;
-      mock.envName = "ERC721_OP_GOERLI";
-      mock.chainId = _chainId;
+    case op_goerli_chain_selector:
+      data.rpcUrl = process.env.OP_GOERLI_RPC_URL as string;
+      data.address = process.env.ERC721_OP_GOERLI as string;
+      data.envName = "ERC721_OP_GOERLI";
+      data.chainId = _chainId;
+      data.chainSelector = op_goerli_chain_selector;
       break;
 
     default:
       throw new Error("Invalid chain ID fo CCIP");
   }
 
-  return mock;
+  return data;
 }
 
-export async function getChainData() {
-  const _chainId = (await ethers.provider.getNetwork()).chainId;
+export async function getSwaplaceData(chainSelector?: any) {
+  const _chainId = chainSelector
+    ? chainSelector
+    : (await ethers.provider.getNetwork()).chainId;
 
   let data = {
+    rpcUrl: "",
     address: "",
     envName: "",
     chainSelector: "",
@@ -97,6 +122,8 @@ export async function getChainData() {
 
   switch (_chainId) {
     case 11155111:
+    case sepolia_chain_selector:
+      data.rpcUrl = process.env.SEPOLIA_RPC_URL as string;
       data.address = process.env.SWAPLACE_SEPOLIA as string;
       data.envName = "SWAPLACE_SEPOLIA";
       data.chainSelector = sepolia_chain_selector;
@@ -106,6 +133,8 @@ export async function getChainData() {
       break;
 
     case 80001:
+    case mumbai_chain_selector:
+      data.rpcUrl = process.env.MUMBAI_RPC_URL as string;
       data.address = process.env.SWAPLACE_MUMBAI as string;
       data.envName = "SWAPLACE_MUMBAI";
       data.chainSelector = mumbai_chain_selector;
@@ -115,6 +144,8 @@ export async function getChainData() {
       break;
 
     case 97:
+    case bnb_chain_selector:
+      data.rpcUrl = process.env.BNB_RPC_URL as string;
       data.address = process.env.SWAPLACE_BNB as string;
       data.envName = "SWAPLACE_BNB";
       data.chainSelector = bnb_chain_selector;
@@ -124,6 +155,8 @@ export async function getChainData() {
       break;
 
     case 43113:
+    case fuji_chain_selector:
+      data.rpcUrl = process.env.FUJI_RPC_URL as string;
       data.address = process.env.SWAPLACE_FUJI as string;
       data.envName = "SWAPLACE_FUJI";
       data.chainSelector = fuji_chain_selector;
@@ -133,6 +166,8 @@ export async function getChainData() {
       break;
 
     case 84531:
+    case base_goerli_chain_selector:
+      data.rpcUrl = process.env.BASE_GOERLI_RPC_URL as string;
       data.address = process.env.SWAPLACE_BASE_GOERLI as string;
       data.envName = "SWAPLACE_BASE_GOERLI";
       data.chainSelector = base_goerli_chain_selector;
@@ -142,6 +177,8 @@ export async function getChainData() {
       break;
 
     case 420:
+    case op_goerli_chain_selector:
+      data.rpcUrl = process.env.OP_GOERLI_RPC_URL as string;
       data.address = process.env.SWAPLACE_OP_GOERLI as string;
       data.envName = "SWAPLACE_OP_GOERLI";
       data.chainSelector = op_goerli_chain_selector;
