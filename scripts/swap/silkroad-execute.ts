@@ -32,14 +32,14 @@ export async function execute(destinationChain: any) {
 
   // Approve ERC source chain
   await approveMock(
-    mockSource.address,
+    swaplaceSource.address,
     tokenIdSource,
     mockSource.chainSelector
   );
 
   // Approve ERC destination chain
   await approveMock(
-    mockDestination.address,
+    swaplaceDestination.address,
     tokenIdDestination,
     destinationChain
   );

@@ -33,7 +33,7 @@ contract Swaplace is CCIP, ISwaplace {
       data
     );
 
-    // _transferFrom(msg.sender, address(this), swap.biding);
+    _transferFrom(msg.sender, address(this), swap.biding);
 
     unchecked {
       assembly {
