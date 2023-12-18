@@ -1,13 +1,13 @@
 import { ethers } from "hardhat";
 import { Swap, composeSwap } from "./SwapFactory";
-import { blocktimestamp, destinationChainBNB } from "../scripts/utils";
+import { blocktimestamp, bnb_chain_selector } from "../scripts/utils";
 import dotenv from "dotenv";
 dotenv.config();
 
 const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
-  OVERSWAP_MUMBAI,
+  SWAPLACE_MUMBAI,
   ERC721_BNB,
   ERC721_MUMBAI,
 } = process.env;
@@ -20,10 +20,10 @@ async function main() {
   // $LINK Address
   const link = "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"; // Mumbai
 
-  // Overswap ContractMumbai
+  // Swaplace ContractMumbai
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
 
@@ -68,7 +68,7 @@ async function main() {
     ContractMumbai,
     signerMumbai.address,
     signerMumbai.address,
-    destinationChainBNB,
+    bnb_chain_selector,
     (await blocktimestamp()) * 2,
     bidingAddr,
     bidingAmountOrId,
@@ -79,7 +79,7 @@ async function main() {
   // Simulate fees
   const simulateFee = await ContractMumbai.connect(signerMumbai).simulateFees(
     swap,
-    destinationChainBNB
+    bnb_chain_selector
   );
   const fee = simulateFee[0];
   const proof = simulateFee[1];

@@ -7,20 +7,24 @@ clean:
 compile:
 	yarn compile
 
-deploy-mumbai:
-	yarn deploy-mumbai
+deploy-mock-sepolia:
+	yarn deploy-mock --network sepolia
 
-deploy-bsc:
-	yarn deploy-bsc
+deploy-mock-mumbai:
+	yarn deploy-mock --network mumbai
 
-allowlist:
-	yarn allowlist
+deploy-swaplace-sepolia:
+	yarn deploy-swaplace --network sepolia
 
-createswap:
-	yarn create-swap
+deploy-swaplace-mumbai:
+	yarn deploy-swaplace --network mumbai
 
-acceptswap:
-	yarn accept-swap
+execute:
+	yarn execute
 
 # Define a target to run the scripts in sequence
-all: clean compile deploy-mumbai deploy-bsc allowlist createswap acceptswap
+deploy-mock: deploy-mock-sepolia deploy-mock-mumbai
+
+deploy-swaplace: deploy-swaplace-sepolia deploy-swaplace-mumbai
+
+swaplace: clean compile deploy-mock deploy-swaplace execute

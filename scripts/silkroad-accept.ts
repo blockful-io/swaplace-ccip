@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { destinationChainMumbai } from "../scripts/utils";
+import { mumbai_chain_selector } from "../scripts/utils";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -7,8 +7,8 @@ const {
   DEPLOYER_PRIVATE_KEY,
   MUMBAI_RPC_URL,
   BSCTESTNET_RPC_URL,
-  OVERSWAP_MUMBAI,
-  OVERSWAP_BNB,
+  SWAPLACE_MUMBAI,
+  SWAPLACE_BNB,
   ERC721_BNB,
 } = process.env;
 
@@ -22,18 +22,18 @@ async function main() {
 
   // Getting the Swap Struct from another chain
   const ContractMumbai = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_MUMBAI as string,
+    "Swaplace",
+    SWAPLACE_MUMBAI as string,
     signerMumbai
   );
   const lastSwap = await ContractMumbai.totalSwaps();
   const swap = await ContractMumbai.getSwap(lastSwap);
   console.log("Last Swap ID: %s", lastSwap);
 
-  // Overswap OverswapBNB
+  // Swaplace SwaplaceBNB
   const ContractBNB = await ethers.getContractAt(
-    "Overswap",
-    OVERSWAP_BNB as string,
+    "Swaplace",
+    SWAPLACE_BNB as string,
     signerBNB
   );
 
@@ -73,7 +73,7 @@ async function main() {
   // Simulate fees
   const simulateFee = await ContractBNB.connect(signerBNB).simulateFees(
     swap,
-    destinationChainMumbai
+    mumbai_chain_selector
   );
   const fee = simulateFee[0];
   const proof = simulateFee[1];
@@ -98,7 +98,7 @@ async function main() {
   // Accept a Swap
   var tx = await ContractBNB.connect(signerBNB).acceptSwap(
     swap,
-    destinationChainMumbai,
+    mumbai_chain_selector,
     {
       gasLimit: 3000000,
       maxPriorityFeePerGas: 20001002003,
