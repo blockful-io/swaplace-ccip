@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { getMockData } from "../utils";
 
 export async function mint(receiver: any, chainSelector: any) {
-  // Get contract address from .env
+  // Get mock data from .env and utilities
   const mock = await getMockData(chainSelector);
 
   // Get the signer based on the chain selector
