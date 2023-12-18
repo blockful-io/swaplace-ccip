@@ -44,7 +44,6 @@ contract Swaplace is CCIP, ISwaplace {
     uint256 swapId = _totalSwaps;
     _swaps[swapId] = swap;
 
-    // Enough time for the funds to be executed by CCIP
     unchecked {
       _refunds[swapId] = block.timestamp + 1 days;
     }

@@ -74,7 +74,6 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
     fees = _router.getFee(_destinationChainSelector, evm2AnyMessage);
 
     uint256 balance = _linkBalance[_feePayer];
-    // 3 times the fees to guarantee success
     unchecked {
       if (balance == 0) _depositLink(_feePayer, fees * 3);
     }
@@ -105,7 +104,7 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       _sendMessagePayLINK(
         any2EvmMessage.sourceChainSelector,
         sender,
-        allowed, // pays for fees
+        allowed,
         abi.encode(swap, 2)
       );
     } else if (stage == 2) {
@@ -115,17 +114,14 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       _sendMessagePayLINK(
         any2EvmMessage.sourceChainSelector,
         sender,
-        swap.owner, // TODO: fee token should be locked during swap
+        swap.owner,
         abi.encode(swap, 3)
       );
 
-      // Extra $LINK as fee for the protocol
       _payFeesSwaplace(swap.owner);
     } else if (stage == 3) {
       // Send asking assets to owner
       _transferFrom(address(this), swap.owner, swap.asking);
-
-      // Extra $LINK as fee for the protocol
       _payFeesSwaplace(allowed);
     }
 
