@@ -55,15 +55,15 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       evm2AnyMessage
     );
 
-    // emit MessageSent(
-    //   messageId,
-    //   _destinationChainSelector,
-    //   _receiver,
-    //   address(_linkToken),
-    //   fees
-    // );
+    emit MessageSent(
+      messageId,
+      _destinationChainSelector,
+      _receiver,
+      address(_linkToken),
+      fees
+    );
 
-    // return messageId;
+    return messageId;
   }
 
   function _payFeesCCIP(
