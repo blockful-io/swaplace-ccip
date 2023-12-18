@@ -55,32 +55,15 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       evm2AnyMessage
     );
 
-    emit MessageSent(
-      messageId,
-      _destinationChainSelector,
-      _receiver,
-      address(_linkToken),
-      fees
-    );
+    // emit MessageSent(
+    //   messageId,
+    //   _destinationChainSelector,
+    //   _receiver,
+    //   address(_linkToken),
+    //   fees
+    // );
 
-    return messageId;
-  }
-
-  function _buildCCIPMessage(
-    address _receiver,
-    bytes memory _data,
-    address _feeTokenAddress
-  ) internal pure returns (Client.EVM2AnyMessage memory) {
-    return
-      Client.EVM2AnyMessage({
-        receiver: abi.encode(_receiver),
-        data: _data,
-        tokenAmounts: new Client.EVMTokenAmount[](0),
-        extraArgs: Client._argsToBytes(
-          Client.EVMExtraArgsV1({gasLimit: 3_000_000, strict: false})
-        ),
-        feeToken: _feeTokenAddress
-      });
+    // return messageId;
   }
 
   function _payFeesCCIP(
@@ -137,13 +120,13 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       );
 
       // Extra $LINK as fee for the protocol
-      _withdrawLink(swap.owner);
+      _payFeesSwaplace(swap.owner);
     } else if (stage == 3) {
       // Send asking assets to owner
       _transferFrom(address(this), swap.owner, swap.asking);
 
       // Extra $LINK as fee for the protocol
-      _withdrawLink(allowed);
+      _payFeesSwaplace(allowed);
     }
 
     emit MessageReceived(
@@ -152,6 +135,23 @@ abstract contract CCIP is CCIPReceiver, OwnerIsCreator, ICCIP, ISwap {
       address(this),
       stage
     );
+  }
+
+  function _buildCCIPMessage(
+    address _receiver,
+    bytes memory _data,
+    address _feeTokenAddress
+  ) internal pure returns (Client.EVM2AnyMessage memory) {
+    return
+      Client.EVM2AnyMessage({
+        receiver: abi.encode(_receiver),
+        data: _data,
+        tokenAmounts: new Client.EVMTokenAmount[](0),
+        extraArgs: Client._argsToBytes(
+          Client.EVMExtraArgsV1({gasLimit: 1_000_000, strict: false})
+        ),
+        feeToken: _feeTokenAddress
+      });
   }
 
   function _transferFrom(
