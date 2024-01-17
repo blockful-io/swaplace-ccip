@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.19;
 
 /**
  * @dev Generalized Interface for {IERC20} and {IERC721} `transferFrom` functions.
@@ -13,4 +13,8 @@ interface ITransfer {
    * Emits a {Transfer} event.
    */
   function transferFrom(address from, address to, uint256 amountOrId) external;
+
+  function approve(address spender, uint256 amountOrId) external;
+
+  function balanceOf(address owner) external view returns (uint256);
 }

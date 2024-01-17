@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.19;
 
-/**
- * @dev Errors only interface for the {Swaplace} implementations.
- */
-interface IErrors {
+interface ISwaplace {
   /**
    * @dev Displayed when the caller is not the owner of the swap.
    */
@@ -23,5 +20,19 @@ interface IErrors {
   /**
    * @dev Displayed when the `expiry` date is in the past.
    */
-  error InvalidExpiry(uint256 timestamp);
+  error InvalidExpiration(uint256 timestamp);
+
+  /**
+   * @dev Emitted when a new Swap is created.
+   */
+  event SwapCreated(
+    uint256 indexed swapId,
+    address indexed owner,
+    uint256 expiration
+  );
+
+  /**
+   * @dev Emitted when a Swap fails.
+   */
+  event SwapCanceled(uint256 indexed swapId, address indexed owner);
 }
