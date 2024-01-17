@@ -12,3 +12,12 @@
 
 # Typechains assists with type safety when interacting with contracts.
 /typechain-types
+
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
